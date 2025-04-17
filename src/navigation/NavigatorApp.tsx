@@ -13,7 +13,7 @@ import { User } from "firebase/auth";
 
 const Stack = createNativeStackNavigator();
 
-export default function AppNavigator() {
+export default function NavigatorApp() {
   const [user, setUser] = useState<User | null>(null);
   const [checking, setChecking] = useState(true);
 

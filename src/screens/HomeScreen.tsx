@@ -1,51 +1,59 @@
-import React from "react";
-import { View, Text, Button, ImageBackground, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ImageBackground,
+  StatusBar,
+  SafeAreaView,
+} from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { styles } from "../styles";
 
 export default function HomeScreen({ navigation }: any) {
   return (
-    <ImageBackground
-      source={require("../assets/background.jpeg")}
-      style={styles.background}
-    >
-      <View style={styles.overlay}>
-        <Text style={styles.title}>Field Trip Logger</Text>
+    <SafeAreaView style={styles.safeAreaContainer}>
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
+      <ImageBackground
+        source={require("../assets/background.jpeg")}
+        style={styles.background}
+        blurRadius={3}
+      >
+        <View style={styles.homeOverlay}>
+          <View style={styles.logoContainer}>
+            <View style={styles.iconContainer}>
+              <MaterialIcons name="hiking" size={60} color="#fff" />
+            </View>
+            <Text style={styles.mainTitle}>Field Trip Logger</Text>
+            <Text style={styles.subtitle}>
+              Document your outdoor adventures and explore amazing places
+            </Text>
+          </View>
 
-        <View style={styles.buttonWrapper}>
-          <Button title="Login" onPress={() => navigation.navigate("Login")} />
-        </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() => navigation.navigate("Login")}
+              activeOpacity={0.8}
+            >
+              <MaterialIcons name="login" size={24} color="white" />
+              <Text style={styles.buttonText}>Login</Text>
+            </TouchableOpacity>
 
-        <View style={styles.buttonWrapper}>
-          <Button
-            title="Create Account"
-            onPress={() => navigation.navigate("CreateAccount")}
-          />
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => navigation.navigate("CreateAccount")}
+              activeOpacity={0.8}
+            >
+              <MaterialIcons name="person-add" size={24} color="#007bff" />
+              <Text style={styles.secondaryButtonText}>Create Account</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </ImageBackground>
+      </ImageBackground>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  overlay: {
-    backgroundColor: "rgba(0,0,0,0.5)",
-    padding: 30,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  buttonWrapper: {
-    marginVertical: 8,
-    width: 200,
-  },
-});

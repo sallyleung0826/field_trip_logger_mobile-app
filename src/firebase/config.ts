@@ -9,6 +9,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getDatabase } from "firebase/database";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Do not remove! This fix the typescript error of getReactNativePersistence in firebase/auth
@@ -18,6 +19,7 @@ const reactNativePersistence = (firebaseAuth as any).getReactNativePersistence;
 const firebaseConfig = {
   apiKey: "AIzaSyD4UvfSXR_eYnWOTauDx3pg1o1u7qxpgbQ",
   authDomain: "field-trip-logger.firebaseapp.com",
+  databaseURL: "https://field-trip-logger-default-rtdb.firebaseio.com", // This matches your log
   projectId: "field-trip-logger",
   storageBucket: "field-trip-logger.firebasestorage.app",
   messagingSenderId: "306918563266",
@@ -47,7 +49,7 @@ try {
 
 export { auth };
 
-// Initialize Firestore with better error handling
+// Initialize Firestore
 let firestore;
 try {
   console.log("[Firebase Config] Initializing Firestore");
@@ -74,6 +76,28 @@ try {
 }
 
 export { firestore };
+
+// Initialize Realtime Database
+let database;
+try {
+  console.log("[Firebase Config] Initializing Firebase Realtime Database");
+  database = getDatabase(app);
+  console.log(
+    "[Firebase Config] Firebase Realtime Database initialized successfully"
+  );
+  console.log(
+    "[Firebase Config] Database URL:",
+    database.app.options.databaseURL
+  );
+} catch (databaseError) {
+  console.error(
+    "[Firebase Config] Failed to initialize Firebase Realtime Database:",
+    databaseError
+  );
+  throw databaseError;
+}
+
+export { database };
 
 // Initialize Storage
 let storage;
@@ -124,6 +148,3 @@ const testFirestoreConnection = async () => {
     console.error("[Firebase Config] Firestore connection test error:", error);
   }
 };
-
-// Run connection test after a short delay
-setTimeout(testFirestoreConnection, 2000);

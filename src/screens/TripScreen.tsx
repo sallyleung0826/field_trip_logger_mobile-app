@@ -12,6 +12,7 @@ import {
   Animated,
   ActivityIndicator,
   Platform,
+  SafeAreaView,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -312,391 +313,403 @@ export default function TripScreen({ navigation, route }: any) {
   );
 
   return (
-    <View style={styles.screenContainer}>
+    <View style={{ flex: 1, backgroundColor: "#1a365d" }}>
       <StatusBar barStyle="light-content" backgroundColor="#1a365d" />
 
-      <View style={styles.professionalHeader}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <MaterialIcons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-
-        <View style={styles.headerContent}>
-          <Text style={styles.professionalHeaderTitle}>Log Adventure</Text>
-          <Text style={styles.professionalHeaderSubtitle}>
-            Create a memorable experience
-          </Text>
-        </View>
-
-        <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.helpButton}>
-            <MaterialIcons
-              name="help-outline"
-              size={20}
-              color="rgba(255,255,255,0.8)"
-            />
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.professionalHeader}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <MaterialIcons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
-        </View>
-      </View>
 
-      <Animated.View
-        style={{
-          flex: 1,
-          opacity: fadeAnim,
-          transform: [{ translateY: slideAnim }],
-        }}
-      >
-        <ScrollView
-          style={{ flex: 1 }}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 100 }}
-        >
-          <View style={styles.progressContainer}>
-            <View style={styles.progressBar}>
-              <View
-                style={[
-                  styles.progressFill,
-                  {
-                    width: `${
-                      rating > 0 && selectedWeather
-                        ? 100
-                        : rating > 0
-                        ? 80
-                        : selectedLocation
-                        ? 60
-                        : 20
-                    }%`,
-                  },
-                ]}
-              />
-            </View>
-            <Text style={styles.progressText}>
-              {rating > 0 && selectedWeather
-                ? "Ready to submit!"
-                : rating > 0
-                ? "Add weather conditions"
-                : selectedLocation
-                ? "Add details"
-                : "Getting started"}
+          <View style={styles.headerContent}>
+            <Text style={styles.professionalHeaderTitle}>Log Adventure</Text>
+            <Text style={styles.professionalHeaderSubtitle}>
+              Create a memorable experience
             </Text>
           </View>
 
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <View style={styles.sectionIcon}>
-                <MaterialIcons name="event" size={20} color="#007bff" />
-              </View>
-              <Text style={styles.sectionTitleText}>Trip Date</Text>
-            </View>
-
-            <TouchableOpacity
-              style={styles.dateCard}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <View style={styles.dateContent}>
-                <MaterialIcons
-                  name="calendar-today"
-                  size={20}
-                  color="#007bff"
-                />
-                <Text style={styles.dateText}>{formatDate(tripDate)}</Text>
-              </View>
-              <MaterialIcons name="chevron-right" size={20} color="#ccc" />
-            </TouchableOpacity>
-
-            {showDatePicker && (
-              <DateTimePicker
-                value={tripDate}
-                mode="date"
-                display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={handleDateChange}
-                maximumDate={new Date()}
+          <View style={styles.headerActions}>
+            <TouchableOpacity style={styles.helpButton}>
+              <MaterialIcons
+                name="help-outline"
+                size={20}
+                color="rgba(255,255,255,0.8)"
               />
-            )}
+            </TouchableOpacity>
           </View>
+        </View>
 
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <View style={styles.sectionIcon}>
-                <MaterialIcons name="place" size={20} color="#007bff" />
+        <Animated.View
+          style={{
+            flex: 1,
+            backgroundColor: "#f5f5f5",
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+          }}
+        >
+          <ScrollView
+            style={{ flex: 1 }}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 100 }}
+          >
+            <View style={styles.progressContainer}>
+              <View style={styles.progressBar}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    {
+                      width: `${
+                        rating > 0 && selectedWeather
+                          ? 100
+                          : rating > 0
+                          ? 80
+                          : selectedLocation
+                          ? 60
+                          : 20
+                      }%`,
+                    },
+                  ]}
+                />
               </View>
-              <Text style={styles.sectionTitleText}>Location</Text>
-              {selectedLocation && (
-                <View style={styles.statusBadge}>
-                  <Text style={styles.statusBadgeText}>✓</Text>
-                </View>
-              )}
+              <Text style={styles.progressText}>
+                {rating > 0 && selectedWeather
+                  ? "Ready to submit!"
+                  : rating > 0
+                  ? "Add weather conditions"
+                  : selectedLocation
+                  ? "Add details"
+                  : "Getting started"}
+              </Text>
             </View>
 
-            {selectedLocation ? (
-              <View style={styles.locationCard}>
-                <Text style={styles.locationAddress} numberOfLines={2}>
-                  {selectedLocation.address}
-                </Text>
-                <View style={styles.locationActions}>
-                  <TouchableOpacity
-                    style={styles.changeLocationButton}
-                    onPress={openMapPicker}
-                  >
-                    <MaterialIcons
-                      name="edit-location"
-                      size={16}
-                      color="#007bff"
-                    />
-                    <Text style={styles.changeLocationText}>
-                      Change location
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.useCurrentButton}
-                    onPress={async () => {
-                      const currentLoc = await getCurrentLocation();
-                      if (currentLoc) {
-                        const geocodeResult = await reverseGeocode(
-                          currentLoc.latitude,
-                          currentLoc.longitude
-                        );
-                        handleLocationSelect({
-                          latitude: currentLoc.latitude,
-                          longitude: currentLoc.longitude,
-                          address:
-                            geocodeResult?.formattedAddress ||
-                            `${currentLoc.latitude.toFixed(
-                              4
-                            )}, ${currentLoc.longitude.toFixed(4)}`,
-                        });
-                      }
-                    }}
-                  >
-                    <MaterialIcons
-                      name="my-location"
-                      size={16}
-                      color="#007bff"
-                    />
-                    <Text style={styles.useCurrentText}>Use current</Text>
-                  </TouchableOpacity>
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionIcon}>
+                  <MaterialIcons name="event" size={20} color="#007bff" />
                 </View>
+                <Text style={styles.sectionTitleText}>Trip Date</Text>
               </View>
-            ) : (
+
               <TouchableOpacity
-                style={styles.actionCard}
-                onPress={openMapPicker}
+                style={styles.dateCard}
+                onPress={() => setShowDatePicker(true)}
               >
-                <MaterialIcons name="add-location" size={24} color="#007bff" />
-                <View style={styles.actionCardContent}>
-                  <Text style={styles.actionCardTitle}>
-                    Select trip location
-                  </Text>
-                  <Text style={styles.actionCardSubtitle}>
-                    Choose where your adventure took place
-                  </Text>
+                <View style={styles.dateContent}>
+                  <MaterialIcons
+                    name="calendar-today"
+                    size={20}
+                    color="#007bff"
+                  />
+                  <Text style={styles.dateText}>{formatDate(tripDate)}</Text>
                 </View>
                 <MaterialIcons name="chevron-right" size={20} color="#ccc" />
               </TouchableOpacity>
-            )}
-          </View>
 
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <View style={styles.sectionIcon}>
-                <MaterialIcons name="wb-sunny" size={20} color="#007bff" />
-              </View>
-              <Text style={styles.sectionTitleText}>Weather Conditions</Text>
-              {selectedWeather && (
-                <View style={styles.statusBadge}>
-                  <Text style={styles.statusBadgeText}>✓</Text>
-                </View>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={tripDate}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  onChange={handleDateChange}
+                  maximumDate={new Date()}
+                />
               )}
             </View>
 
-            <WeatherSelector
-              selectedWeather={selectedWeather}
-              onWeatherSelect={handleWeatherSelect}
-            />
-          </View>
-
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <View style={styles.sectionIcon}>
-                <MaterialIcons name="collections" size={20} color="#007bff" />
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionIcon}>
+                  <MaterialIcons name="place" size={20} color="#007bff" />
+                </View>
+                <Text style={styles.sectionTitleText}>Location</Text>
+                {selectedLocation && (
+                  <View style={styles.statusBadge}>
+                    <Text style={styles.statusBadgeText}>✓</Text>
+                  </View>
+                )}
               </View>
-              <Text style={styles.sectionTitleText}>Capture Memories</Text>
-            </View>
 
-            <View style={styles.mediaGrid}>
-              <View style={styles.mediaItem}>
-                <Text style={styles.mediaLabel}>Photo</Text>
-                {photo ? (
-                  <View style={styles.mediaPreview}>
-                    <Image source={{ uri: photo }} style={styles.mediaImage} />
+              {selectedLocation ? (
+                <View style={styles.locationCard}>
+                  <Text style={styles.locationAddress} numberOfLines={2}>
+                    {selectedLocation.address}
+                  </Text>
+                  <View style={styles.locationActions}>
                     <TouchableOpacity
-                      style={styles.mediaRemoveButton}
-                      onPress={() => clearMedia("photo")}
+                      style={styles.changeLocationButton}
+                      onPress={openMapPicker}
                     >
-                      <MaterialIcons name="close" size={16} color="white" />
+                      <MaterialIcons
+                        name="edit-location"
+                        size={16}
+                        color="#007bff"
+                      />
+                      <Text style={styles.changeLocationText}>
+                        Change location
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.useCurrentButton}
+                      onPress={async () => {
+                        const currentLoc = await getCurrentLocation();
+                        if (currentLoc) {
+                          const geocodeResult = await reverseGeocode(
+                            currentLoc.latitude,
+                            currentLoc.longitude
+                          );
+                          handleLocationSelect({
+                            latitude: currentLoc.latitude,
+                            longitude: currentLoc.longitude,
+                            address:
+                              geocodeResult?.formattedAddress ||
+                              `${currentLoc.latitude.toFixed(
+                                4
+                              )}, ${currentLoc.longitude.toFixed(4)}`,
+                          });
+                        }
+                      }}
+                    >
+                      <MaterialIcons
+                        name="my-location"
+                        size={16}
+                        color="#007bff"
+                      />
+                      <Text style={styles.useCurrentText}>Use current</Text>
                     </TouchableOpacity>
                   </View>
-                ) : (
-                  <TouchableOpacity
-                    style={styles.mediaPlaceholder}
-                    onPress={() => setPhotoModalVisible(true)}
-                  >
-                    <MaterialIcons
-                      name="add-a-photo"
-                      size={24}
-                      color="#007bff"
-                    />
-                    <Text style={styles.mediaPlaceholderText}>Add photo</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-
-              <View style={styles.mediaItem}>
-                <Text style={styles.mediaLabel}>Voice Note</Text>
-                {audioRecording.uri ? (
-                  <View style={styles.audioPreview}>
-                    <MaterialIcons
-                      name="audiotrack"
-                      size={24}
-                      color="#28a745"
-                    />
-                    <Text style={styles.audioPreviewText}>Recorded</Text>
-                    <View style={styles.audioActions}>
-                      <TouchableOpacity
-                        style={styles.audioActionButton}
-                        onPress={playAudioRecording}
-                      >
-                        <MaterialIcons
-                          name="play-arrow"
-                          size={16}
-                          color="#28a745"
-                        />
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.audioActionButton}
-                        onPress={() => clearMedia("audio")}
-                      >
-                        <MaterialIcons
-                          name="delete"
-                          size={16}
-                          color="#d9534f"
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                ) : (
-                  <TouchableOpacity
-                    style={[
-                      styles.recordButton,
-                      { backgroundColor: isRecording ? "#d9534f" : "#28a745" },
-                    ]}
-                    onPress={
-                      isRecording ? handleStopRecording : handleStartRecording
-                    }
-                  >
-                    <MaterialIcons
-                      name={isRecording ? "stop" : "mic"}
-                      size={20}
-                      color="white"
-                    />
-                    <Text style={styles.recordButtonText}>
-                      {isRecording ? "Stop" : "Record"}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <View style={styles.sectionIcon}>
-                <MaterialIcons name="edit-note" size={20} color="#007bff" />
-              </View>
-              <Text style={styles.sectionTitleText}>Description</Text>
-              <Text style={styles.sectionOptional}>Optional</Text>
-            </View>
-
-            <TextInput
-              style={styles.descriptionInput}
-              placeholder="Tell us about your experience... What made this place special?"
-              placeholderTextColor="#999"
-              value={description}
-              onChangeText={setDescription}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-            />
-          </View>
-
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <View style={styles.sectionIcon}>
-                <MaterialIcons name="star" size={20} color="#007bff" />
-              </View>
-              <Text style={styles.sectionTitleText}>Rate this Location</Text>
-              {rating > 0 && (
-                <View style={styles.statusBadge}>
-                  <Text style={styles.statusBadgeText}>✓</Text>
                 </View>
+              ) : (
+                <TouchableOpacity
+                  style={styles.actionCard}
+                  onPress={openMapPicker}
+                >
+                  <MaterialIcons
+                    name="add-location"
+                    size={24}
+                    color="#007bff"
+                  />
+                  <View style={styles.actionCardContent}>
+                    <Text style={styles.actionCardTitle}>
+                      Select trip location
+                    </Text>
+                    <Text style={styles.actionCardSubtitle}>
+                      Choose where your adventure took place
+                    </Text>
+                  </View>
+                  <MaterialIcons name="chevron-right" size={20} color="#ccc" />
+                </TouchableOpacity>
               )}
             </View>
 
-            <View style={styles.ratingCard}>
-              <StarRating
-                rating={rating}
-                onRatingChange={setRating}
-                size={32}
-                color="#FFD700"
-              />
-              <Text style={styles.ratingCardText}>
-                {rating === 0
-                  ? "Tap stars to rate this location"
-                  : `${rating} star${rating !== 1 ? "s" : ""} - ${
-                      rating === 1
-                        ? "Poor"
-                        : rating === 2
-                        ? "Fair"
-                        : rating === 3
-                        ? "Good"
-                        : rating === 4
-                        ? "Very Good"
-                        : "Excellent"
-                    }`}
-              </Text>
-            </View>
-          </View>
-        </ScrollView>
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionIcon}>
+                  <MaterialIcons name="wb-sunny" size={20} color="#007bff" />
+                </View>
+                <Text style={styles.sectionTitleText}>Weather Conditions</Text>
+                {selectedWeather && (
+                  <View style={styles.statusBadge}>
+                    <Text style={styles.statusBadgeText}>✓</Text>
+                  </View>
+                )}
+              </View>
 
-        <View style={styles.bottomActions}>
-          <TouchableOpacity
-            style={[
-              styles.submitButton,
-              {
-                opacity:
-                  loading ||
-                  !selectedLocation ||
-                  rating === 0 ||
-                  !selectedWeather
-                    ? 0.5
-                    : 1,
-              },
-            ]}
-            onPress={handleSubmitTrip}
-            disabled={
-              loading || !selectedLocation || rating === 0 || !selectedWeather
-            }
-          >
-            <MaterialIcons name="check-circle" size={24} color="white" />
-            <Text style={styles.submitButtonText}>
-              {loading ? "Saving..." : "Save Adventure"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
+              <WeatherSelector
+                selectedWeather={selectedWeather}
+                onWeatherSelect={handleWeatherSelect}
+              />
+            </View>
+
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionIcon}>
+                  <MaterialIcons name="collections" size={20} color="#007bff" />
+                </View>
+                <Text style={styles.sectionTitleText}>Capture Memories</Text>
+              </View>
+
+              <View style={styles.mediaGrid}>
+                <View style={styles.mediaItem}>
+                  <Text style={styles.mediaLabel}>Photo</Text>
+                  {photo ? (
+                    <View style={styles.mediaPreview}>
+                      <Image
+                        source={{ uri: photo }}
+                        style={styles.mediaImage}
+                      />
+                      <TouchableOpacity
+                        style={styles.mediaRemoveButton}
+                        onPress={() => clearMedia("photo")}
+                      >
+                        <MaterialIcons name="close" size={16} color="white" />
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.mediaPlaceholder}
+                      onPress={() => setPhotoModalVisible(true)}
+                    >
+                      <MaterialIcons
+                        name="add-a-photo"
+                        size={24}
+                        color="#007bff"
+                      />
+                      <Text style={styles.mediaPlaceholderText}>Add photo</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+
+                <View style={styles.mediaItem}>
+                  <Text style={styles.mediaLabel}>Voice Note</Text>
+                  {audioRecording.uri ? (
+                    <View style={styles.audioPreview}>
+                      <MaterialIcons
+                        name="audiotrack"
+                        size={24}
+                        color="#28a745"
+                      />
+                      <Text style={styles.audioPreviewText}>Recorded</Text>
+                      <View style={styles.audioActions}>
+                        <TouchableOpacity
+                          style={styles.audioActionButton}
+                          onPress={playAudioRecording}
+                        >
+                          <MaterialIcons
+                            name="play-arrow"
+                            size={16}
+                            color="#28a745"
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.audioActionButton}
+                          onPress={() => clearMedia("audio")}
+                        >
+                          <MaterialIcons
+                            name="delete"
+                            size={16}
+                            color="#d9534f"
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      style={[
+                        styles.recordButton,
+                        {
+                          backgroundColor: isRecording ? "#d9534f" : "#28a745",
+                        },
+                      ]}
+                      onPress={
+                        isRecording ? handleStopRecording : handleStartRecording
+                      }
+                    >
+                      <MaterialIcons
+                        name={isRecording ? "stop" : "mic"}
+                        size={20}
+                        color="white"
+                      />
+                      <Text style={styles.recordButtonText}>
+                        {isRecording ? "Stop" : "Record"}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionIcon}>
+                  <MaterialIcons name="edit-note" size={20} color="#007bff" />
+                </View>
+                <Text style={styles.sectionTitleText}>Description</Text>
+                <Text style={styles.sectionOptional}>Optional</Text>
+              </View>
+
+              <TextInput
+                style={styles.descriptionInput}
+                placeholder="Tell us about your experience... What made this place special?"
+                placeholderTextColor="#999"
+                value={description}
+                onChangeText={setDescription}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+            </View>
+
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionIcon}>
+                  <MaterialIcons name="star" size={20} color="#007bff" />
+                </View>
+                <Text style={styles.sectionTitleText}>Rate this Location</Text>
+                {rating > 0 && (
+                  <View style={styles.statusBadge}>
+                    <Text style={styles.statusBadgeText}>✓</Text>
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.ratingCard}>
+                <StarRating
+                  rating={rating}
+                  onRatingChange={setRating}
+                  size={32}
+                  color="#FFD700"
+                />
+                <Text style={styles.ratingCardText}>
+                  {rating === 0
+                    ? "Tap stars to rate this location"
+                    : `${rating} star${rating !== 1 ? "s" : ""} - ${
+                        rating === 1
+                          ? "Poor"
+                          : rating === 2
+                          ? "Fair"
+                          : rating === 3
+                          ? "Good"
+                          : rating === 4
+                          ? "Very Good"
+                          : "Excellent"
+                      }`}
+                </Text>
+              </View>
+            </View>
+          </ScrollView>
+
+          <View style={styles.bottomActions}>
+            <TouchableOpacity
+              style={[
+                styles.submitButton,
+                {
+                  opacity:
+                    loading ||
+                    !selectedLocation ||
+                    rating === 0 ||
+                    !selectedWeather
+                      ? 0.5
+                      : 1,
+                },
+              ]}
+              onPress={handleSubmitTrip}
+              disabled={
+                loading || !selectedLocation || rating === 0 || !selectedWeather
+              }
+            >
+              <MaterialIcons name="check-circle" size={24} color="white" />
+              <Text style={styles.submitButtonText}>
+                {loading ? "Saving..." : "Save Adventure"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      </SafeAreaView>
 
       <PhotoModal />
       <LoadingModal />

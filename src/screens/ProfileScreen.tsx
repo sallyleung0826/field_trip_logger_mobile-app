@@ -6,6 +6,7 @@ import {
   Alert,
   StatusBar,
   ScrollView,
+  SafeAreaView,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { logout } from "../firebase/auth";
@@ -230,10 +231,10 @@ export default function ProfileScreen({ navigation }: any) {
   );
 
   return (
-    <View style={styles.screenContainer}>
+    <SafeAreaView style={styles.safeAreaContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
 
-      <View style={styles.simpleHeader}>
+      <View style={[styles.simpleHeader, { paddingTop: 30 }]}>
         <View>
           <Text style={styles.headerTitle}>👤 Profile</Text>
           <Text style={styles.headerSubtitle}>
@@ -293,6 +294,6 @@ export default function ProfileScreen({ navigation }: any) {
 
         <View style={styles.bottomPadding} />
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

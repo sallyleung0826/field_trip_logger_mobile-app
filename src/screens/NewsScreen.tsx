@@ -1,4 +1,4 @@
-import { StatusBar, View, Text, Platform } from "react-native";
+import { StatusBar, View, Text, Platform, SafeAreaView } from "react-native";
 import ArticleFeed from "../components/ArticleFeed";
 import { styles } from "../styles";
 
@@ -7,10 +7,10 @@ const statusBarHeight =
 
 export default function NewsScreen() {
   return (
-    <View style={styles.screenContainer}>
+    <SafeAreaView style={styles.safeAreaContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
 
-      <View style={styles.simpleHeader}>
+      <View style={[styles.simpleHeader, { paddingTop: 30 }]}>
         <View>
           <Text style={styles.headerTitle}>📰 News & Articles</Text>
           <Text style={styles.headerSubtitle}>
@@ -20,6 +20,6 @@ export default function NewsScreen() {
       </View>
 
       <ArticleFeed />
-    </View>
+    </SafeAreaView>
   );
 }

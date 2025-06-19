@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   StatusBar,
+  SafeAreaView,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { fetchTopRatedLocations } from "../firebase/firebaseService";
@@ -74,10 +75,10 @@ export default function ExploreScreen({ navigation }: any) {
   );
 
   return (
-    <View style={styles.screenContainer}>
+    <SafeAreaView style={styles.safeAreaContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
 
-      <View style={styles.simpleHeader}>
+      <View style={[styles.simpleHeader, { paddingTop: 30 }]}>
         <View>
           <Text style={styles.headerTitle}>🔍 Explore</Text>
           <Text style={styles.headerSubtitle}>
@@ -153,6 +154,6 @@ export default function ExploreScreen({ navigation }: any) {
 
         <View style={styles.bottomPadding} />
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

@@ -11,6 +11,7 @@ import {
   RefreshControl,
   StatusBar,
   Platform,
+  SafeAreaView,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -508,10 +509,10 @@ export default function MainScreen({ navigation }: any) {
   };
 
   return (
-    <View style={styles.screenContainer}>
+    <SafeAreaView style={styles.safeAreaContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
 
-      <View style={styles.simpleHeader}>
+      <View style={[styles.simpleHeader, { paddingTop: 30 }]}>
         <View style={styles.headerContent}>
           <Text style={styles.headerTitle}>🎒 My Adventures</Text>
           <Text style={styles.headerSubtitle}>
@@ -610,6 +611,6 @@ export default function MainScreen({ navigation }: any) {
       )}
 
       {renderTripDetails()}
-    </View>
+    </SafeAreaView>
   );
 }

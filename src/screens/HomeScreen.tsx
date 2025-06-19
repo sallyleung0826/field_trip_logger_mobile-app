@@ -11,7 +11,7 @@ import { styles } from "../styles";
 
 export default function HomeScreen({ navigation }: any) {
   return (
-    <SafeAreaView style={styles.safeAreaContainer}>
+    <View style={{ flex: 1, backgroundColor: "#f5f5f5" }}>
       <StatusBar
         barStyle="light-content"
         backgroundColor="transparent"
@@ -22,38 +22,42 @@ export default function HomeScreen({ navigation }: any) {
         style={styles.background}
         blurRadius={3}
       >
-        <View style={styles.homeOverlay}>
-          <View style={styles.logoContainer}>
-            <View style={styles.iconContainer}>
-              <MaterialIcons name="hiking" size={60} color="#fff" />
+        <SafeAreaView
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <View style={styles.homeOverlay}>
+            <View style={styles.logoContainer}>
+              <View style={styles.iconContainer}>
+                <MaterialIcons name="hiking" size={60} color="#fff" />
+              </View>
+              <Text style={styles.mainTitle}>Field Trip Logger</Text>
+              <Text style={styles.subtitle}>
+                Document your outdoor adventures and explore amazing places
+              </Text>
             </View>
-            <Text style={styles.mainTitle}>Field Trip Logger</Text>
-            <Text style={styles.subtitle}>
-              Document your outdoor adventures and explore amazing places
-            </Text>
-          </View>
 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.primaryButton}
-              onPress={() => navigation.navigate("Login")}
-              activeOpacity={0.8}
-            >
-              <MaterialIcons name="login" size={24} color="white" />
-              <Text style={styles.buttonText}>Login</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.primaryButton}
+                onPress={() => navigation.navigate("Login")}
+                activeOpacity={0.8}
+              >
+                <MaterialIcons name="login" size={24} color="white" />
+                <Text style={styles.buttonText}>Login</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={() => navigation.navigate("CreateAccount")}
-              activeOpacity={0.8}
-            >
-              <MaterialIcons name="person-add" size={24} color="#007bff" />
-              <Text style={styles.secondaryButtonText}>Create Account</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={() => navigation.navigate("CreateAccount")}
+                activeOpacity={0.8}
+              >
+                <MaterialIcons name="person-add" size={24} color="#007bff" />
+                <Text style={styles.secondaryButtonText}>Create Account</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        </SafeAreaView>
       </ImageBackground>
-    </SafeAreaView>
+    </View>
   );
 }

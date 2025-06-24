@@ -38,14 +38,6 @@ export interface LocationRating {
   lastUpdated: any;
 }
 
-export interface MapMarker {
-  id: string;
-  latitude: number;
-  longitude: number;
-  trip: Trip;
-  rating: number;
-}
-
 export interface ClusteredMarker {
   id: string;
   latitude: number;
@@ -61,13 +53,6 @@ export interface MapRegion {
   longitude: number;
   latitudeDelta: number;
   longitudeDelta: number;
-}
-
-export interface MarkerClusterConfig {
-  clusterDistance: number;
-  minClusterSize: number;
-  maxClusterSize: number;
-  clusterRadius: number;
 }
 
 export interface UserStats {
@@ -90,24 +75,6 @@ export interface UserStats {
   seasonsCovered: string[];
   achievementPoints: number;
   unlockedAchievements: number;
-}
-
-export interface MapFilter {
-  ratingRange: [number, number];
-  dateRange?: [Date, Date];
-  weatherConditions?: string[];
-  showClusters: boolean;
-  showTopRated: boolean;
-}
-
-export interface MapSearchResult {
-  location: {
-    latitude: number;
-    longitude: number;
-    address: string;
-  };
-  trips: Trip[];
-  distance?: number;
 }
 
 export interface EnhancedLocationRating extends LocationRating {

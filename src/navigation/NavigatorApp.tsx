@@ -1,65 +1,43 @@
-import React, { useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase/config";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { User } from "firebase/auth";
 
 import HomeScreen from "../screens/HomeScreen";
 import LoginScreen from "../screens/LoginScreen";
 import CreateAccountScreen from "../screens/CreateAccountScreen";
-import MainScreen from "../screens/MainScreen";
-import TripScreen from "../screens/TripScreen";
-import { User } from "firebase/auth";
+import MainTabNavigator from "./NavigatorMainTab";
 
 const Stack = createNativeStackNavigator();
 
-export default function NavigatorApp() {
-  const [user, setUser] = useState<User | null>(null);
-  const [checking, setChecking] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setChecking(false);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  if (checking) return null;
-
+export default function NavigatorApp({ user }: { user: User | null }) {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        {user ? (
-          <>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          id={undefined}
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          {user ? (
             <Stack.Screen
-              name="Main"
-              component={MainScreen}
+              name="MainTabs"
+              component={MainTabNavigator}
               options={{ headerShown: false }}
             />
-            <Stack.Screen name="Trip" component={TripScreen} />
-          </>
-        ) : (
-          <>
-            <Stack.Screen
-              name="Home"
-              component={HomeScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Login"
-              component={LoginScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="CreateAccount"
-              component={CreateAccountScreen}
-              options={{ headerShown: false }}
-            />
-          </>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+          ) : (
+            <>
+              <Stack.Screen name="Home" component={HomeScreen} />
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen
+                name="CreateAccount"
+                component={CreateAccountScreen}
+              />
+            </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }

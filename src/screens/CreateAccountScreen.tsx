@@ -98,7 +98,7 @@ export default function CreateAccountScreen({ navigation }: any) {
         [
           {
             text: "Get Started",
-            onPress: () => navigation.replace("Main"),
+            onPress: () => navigation.replace("MainTabs"),
             style: "default",
           },
         ]
@@ -144,7 +144,7 @@ export default function CreateAccountScreen({ navigation }: any) {
   const strengthInfo = getPasswordStrengthText(passwordStrength);
 
   return (
-    <SafeAreaView style={styles.safeAreaContainer}>
+    <View style={{ flex: 1, backgroundColor: "#f5f5f5" }}>
       <StatusBar
         barStyle="light-content"
         backgroundColor="transparent"
@@ -152,241 +152,267 @@ export default function CreateAccountScreen({ navigation }: any) {
       />
       <ImageBackground
         source={require("../assets/background.jpeg")}
-        style={styles.background}
+        style={{ flex: 1 }}
         blurRadius={3}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.keyboardAvoidContainer}
-        >
-          <ScrollView
-            contentContainerStyle={styles.scrollViewContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
+        <SafeAreaView style={{ flex: 1 }}>
+          <TouchableOpacity
+            style={{
+              position: "absolute",
+              top: Platform.OS === "ios" ? 60 : 40,
+              left: 20,
+              zIndex: 10,
+              backgroundColor: "rgba(0,0,0,0.3)",
+              borderRadius: 20,
+              padding: 8,
+            }}
+            onPress={() => navigation.goBack()}
           >
-            <View style={styles.loginOverlay}>
-              <View style={styles.logoContainer}>
-                <MaterialIcons name="person-add" size={48} color="#fff" />
-                <Text style={styles.mainTitle}>Create Account</Text>
-              </View>
+            <MaterialIcons name="arrow-back" size={24} color="white" />
+          </TouchableOpacity>
 
-              <View style={styles.inputContainer}>
-                <View style={styles.inputWrapper}>
-                  <MaterialIcons
-                    name="email"
-                    size={20}
-                    color="#666"
-                    style={styles.inputIcon}
-                  />
-                  <TextInput
-                    placeholder="Email Address"
-                    style={styles.inputWithIcon}
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                  />
-                  {email.length > 0 && (
-                    <MaterialIcons
-                      name={
-                        email.includes("@") && email.includes(".")
-                          ? "check-circle"
-                          : "error"
-                      }
-                      size={20}
-                      color={
-                        email.includes("@") && email.includes(".")
-                          ? "#00cc44"
-                          : "#ff4444"
-                      }
-                    />
-                  )}
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={{ flex: 1 }}
+          >
+            <ScrollView
+              contentContainerStyle={{
+                flexGrow: 1,
+                justifyContent: "center",
+                paddingHorizontal: 20,
+                paddingVertical: 40,
+              }}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+              <View style={styles.loginOverlay}>
+                <View style={styles.logoContainer}>
+                  <MaterialIcons name="person-add" size={48} color="#fff" />
+                  <Text style={styles.mainTitle}>Create Account</Text>
                 </View>
 
-                <View style={styles.inputWrapper}>
-                  <MaterialIcons
-                    name="lock"
-                    size={20}
-                    color="#666"
-                    style={styles.inputIcon}
-                  />
-                  <TextInput
-                    placeholder="Password (min. 8 characters)"
-                    style={styles.inputWithIcon}
-                    secureTextEntry={!showPassword}
-                    value={password}
-                    onChangeText={setPassword}
-                    autoCapitalize="none"
-                  />
-                  <TouchableOpacity
-                    style={styles.passwordVisibilityToggle}
-                    onPress={() => setShowPassword(!showPassword)}
-                  >
+                <View style={styles.inputContainer}>
+                  <View style={styles.inputWrapper}>
                     <MaterialIcons
-                      name={showPassword ? "visibility-off" : "visibility"}
+                      name="email"
                       size={20}
                       color="#666"
+                      style={styles.inputIcon}
                     />
-                  </TouchableOpacity>
-                </View>
+                    <TextInput
+                      placeholder="Email Address"
+                      style={styles.inputWithIcon}
+                      value={email}
+                      onChangeText={setEmail}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                    />
+                    {email.length > 0 && (
+                      <MaterialIcons
+                        name={
+                          email.includes("@") && email.includes(".")
+                            ? "check-circle"
+                            : "error"
+                        }
+                        size={20}
+                        color={
+                          email.includes("@") && email.includes(".")
+                            ? "#00cc44"
+                            : "#ff4444"
+                        }
+                      />
+                    )}
+                  </View>
 
-                {password.length > 0 && (
-                  <View style={{ marginBottom: 15 }}>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: 5,
-                      }}
+                  <View style={styles.inputWrapper}>
+                    <MaterialIcons
+                      name="lock"
+                      size={20}
+                      color="#666"
+                      style={styles.inputIcon}
+                    />
+                    <TextInput
+                      placeholder="Password (min. 8 characters)"
+                      style={styles.inputWithIcon}
+                      secureTextEntry={!showPassword}
+                      value={password}
+                      onChangeText={setPassword}
+                      autoCapitalize="none"
+                    />
+                    <TouchableOpacity
+                      style={styles.passwordVisibilityToggle}
+                      onPress={() => setShowPassword(!showPassword)}
                     >
-                      <Text style={{ color: "#fff", fontSize: 12 }}>
-                        Password Strength:
-                      </Text>
-                      <Text
-                        style={{
-                          color: strengthInfo.color,
-                          fontSize: 12,
-                          fontWeight: "600",
-                        }}
-                      >
-                        {strengthInfo.text}
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        height: 4,
-                        backgroundColor: "rgba(255,255,255,0.3)",
-                        borderRadius: 2,
-                      }}
-                    >
+                      <MaterialIcons
+                        name={showPassword ? "visibility-off" : "visibility"}
+                        size={20}
+                        color="#666"
+                      />
+                    </TouchableOpacity>
+                  </View>
+
+                  {password.length > 0 && (
+                    <View style={{ marginBottom: 15 }}>
                       <View
                         style={{
-                          height: "100%",
-                          width: `${(passwordStrength / 5) * 100}%`,
-                          backgroundColor: strengthInfo.color,
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          marginBottom: 5,
+                        }}
+                      >
+                        <Text style={{ color: "#fff", fontSize: 12 }}>
+                          Password Strength:
+                        </Text>
+                        <Text
+                          style={{
+                            color: strengthInfo.color,
+                            fontSize: 12,
+                            fontWeight: "600",
+                          }}
+                        >
+                          {strengthInfo.text}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          height: 4,
+                          backgroundColor: "rgba(255,255,255,0.3)",
                           borderRadius: 2,
                         }}
-                      />
+                      >
+                        <View
+                          style={{
+                            height: "100%",
+                            width: `${(passwordStrength / 5) * 100}%`,
+                            backgroundColor: strengthInfo.color,
+                            borderRadius: 2,
+                          }}
+                        />
+                      </View>
                     </View>
-                  </View>
-                )}
+                  )}
 
-                <View style={styles.inputWrapper}>
-                  <MaterialIcons
-                    name="lock-outline"
-                    size={20}
-                    color="#666"
-                    style={styles.inputIcon}
-                  />
-                  <TextInput
-                    placeholder="Confirm Password"
-                    style={styles.inputWithIcon}
-                    secureTextEntry={!showConfirmPassword}
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                    autoCapitalize="none"
-                  />
+                  <View style={styles.inputWrapper}>
+                    <MaterialIcons
+                      name="lock-outline"
+                      size={20}
+                      color="#666"
+                      style={styles.inputIcon}
+                    />
+                    <TextInput
+                      placeholder="Confirm Password"
+                      style={styles.inputWithIcon}
+                      secureTextEntry={!showConfirmPassword}
+                      value={confirmPassword}
+                      onChangeText={setConfirmPassword}
+                      autoCapitalize="none"
+                    />
+                    <TouchableOpacity
+                      style={styles.passwordVisibilityToggle}
+                      onPress={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                    >
+                      <MaterialIcons
+                        name={
+                          showConfirmPassword ? "visibility-off" : "visibility"
+                        }
+                        size={20}
+                        color="#666"
+                      />
+                    </TouchableOpacity>
+                    {confirmPassword.length > 0 && (
+                      <MaterialIcons
+                        name={
+                          password === confirmPassword
+                            ? "check-circle"
+                            : "error"
+                        }
+                        size={20}
+                        color={
+                          password === confirmPassword ? "#00cc44" : "#ff4444"
+                        }
+                        style={{ marginLeft: 5 }}
+                      />
+                    )}
+                  </View>
+
                   <TouchableOpacity
-                    style={styles.passwordVisibilityToggle}
-                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginBottom: 20,
+                    }}
+                    onPress={() => setAgreedToTerms(!agreedToTerms)}
+                    activeOpacity={0.8}
                   >
                     <MaterialIcons
                       name={
-                        showConfirmPassword ? "visibility-off" : "visibility"
+                        agreedToTerms ? "check-box" : "check-box-outline-blank"
                       }
-                      size={20}
-                      color="#666"
+                      size={24}
+                      color={agreedToTerms ? "#007bff" : "#ccc"}
                     />
+                    <Text
+                      style={{
+                        color: "#fff",
+                        fontSize: 12,
+                        marginLeft: 10,
+                        flex: 1,
+                        lineHeight: 16,
+                      }}
+                    >
+                      I agree to the Terms of Service and Privacy Policy
+                    </Text>
                   </TouchableOpacity>
-                  {confirmPassword.length > 0 && (
-                    <MaterialIcons
-                      name={
-                        password === confirmPassword ? "check-circle" : "error"
-                      }
-                      size={20}
-                      color={
-                        password === confirmPassword ? "#00cc44" : "#ff4444"
-                      }
-                      style={{ marginLeft: 5 }}
-                    />
-                  )}
                 </View>
 
                 <TouchableOpacity
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 20,
-                  }}
-                  onPress={() => setAgreedToTerms(!agreedToTerms)}
+                  style={[
+                    styles.primaryButton,
+                    {
+                      opacity:
+                        isLoading ||
+                        !email ||
+                        !password ||
+                        !confirmPassword ||
+                        !agreedToTerms
+                          ? 0.7
+                          : 1,
+                    },
+                  ]}
+                  onPress={handleRegister}
+                  disabled={
+                    isLoading ||
+                    !email ||
+                    !password ||
+                    !confirmPassword ||
+                    !agreedToTerms
+                  }
                   activeOpacity={0.8}
                 >
-                  <MaterialIcons
-                    name={
-                      agreedToTerms ? "check-box" : "check-box-outline-blank"
-                    }
-                    size={24}
-                    color={agreedToTerms ? "#007bff" : "#ccc"}
-                  />
-                  <Text
-                    style={{
-                      color: "#fff",
-                      fontSize: 12,
-                      marginLeft: 10,
-                      flex: 1,
-                      lineHeight: 16,
-                    }}
-                  >
-                    I agree to the Terms of Service and Privacy Policy
+                  <MaterialIcons name="person-add" size={24} color="white" />
+                  <Text style={styles.buttonText}>
+                    {isLoading ? "Creating Account..." : "Create Account"}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.createAccountLink}
+                  onPress={() => navigation.navigate("Login")}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.createAccountText}>
+                    Already have an account? Sign in here
                   </Text>
                 </TouchableOpacity>
               </View>
-
-              <TouchableOpacity
-                style={[
-                  styles.primaryButton,
-                  {
-                    opacity:
-                      isLoading ||
-                      !email ||
-                      !password ||
-                      !confirmPassword ||
-                      !agreedToTerms
-                        ? 0.7
-                        : 1,
-                  },
-                ]}
-                onPress={handleRegister}
-                disabled={
-                  isLoading ||
-                  !email ||
-                  !password ||
-                  !confirmPassword ||
-                  !agreedToTerms
-                }
-                activeOpacity={0.8}
-              >
-                <MaterialIcons name="person-add" size={24} color="white" />
-                <Text style={styles.buttonText}>
-                  {isLoading ? "Creating Account..." : "Create Account"}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.createAccountLink}
-                onPress={() => navigation.navigate("Login")}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.createAccountText}>
-                  Already have an account? Sign in here
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
       </ImageBackground>
-    </SafeAreaView>
+    </View>
   );
 }

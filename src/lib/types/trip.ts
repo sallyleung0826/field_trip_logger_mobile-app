@@ -1,3 +1,5 @@
+import { Region } from "react-native-maps";
+
 export interface Trip {
   id?: string;
   userId: string;
@@ -94,8 +96,17 @@ export interface EnhancedLocationRating extends LocationRating {
   tags: string[];
 }
 
+// Hong Kong location
 export const HONG_KONG_LOCATION = {
   latitude: 22.3193,
   longitude: 114.1694,
   address: "Hong Kong",
+};
+
+// Hong Kong region
+export const HONG_KONG_REGION: Region = {
+  latitude: 22.3193,
+  longitude: 114.1694,
+  latitudeDelta: 0.3,
+  longitudeDelta: 0.3,
 };

@@ -18,14 +18,14 @@ import {
   calculateUserStats,
   getAchievementProgress,
 } from "../firebase/firebaseService";
-import {
-  UserStats,
-  AchievementProgress,
-  Achievement,
-  AchievementCategory,
-} from "../lib/types/trip";
+import { UserStats } from "../lib/types/trip";
 import AchievementCard from "../components/AchievementCard";
 import { OverallProgress } from "../components/ProgressBar";
+import {
+  Achievement,
+  AchievementCategory,
+  AchievementProgress,
+} from "../lib/types/achievement";
 
 const { width } = Dimensions.get("window");
 
@@ -164,7 +164,6 @@ export default function ProfileScreen({ navigation }: any) {
 
   const renderOverviewTab = () => (
     <ScrollView style={styles.tabContent} showsVerticalScrollIndicator={false}>
-      {/* Overall Achievement Progress */}
       <OverallProgress
         totalPoints={userStats.achievementPoints}
         unlockedAchievements={userStats.unlockedAchievements}
@@ -172,8 +171,6 @@ export default function ProfileScreen({ navigation }: any) {
           (sum, cat) => sum + cat.achievements.length,
           0
         )}
-        level={Math.floor(userStats.achievementPoints / 1000) + 1}
-        nextLevelPoints={1000}
       />
 
       {/* Adventure Stats */}
@@ -216,7 +213,6 @@ export default function ProfileScreen({ navigation }: any) {
         </View>
       </View>
 
-      {/* Recent Achievements */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>🏆 Recent Achievements</Text>
@@ -235,7 +231,6 @@ export default function ProfileScreen({ navigation }: any) {
 
   const renderAchievementsTab = () => (
     <ScrollView style={styles.tabContent} showsVerticalScrollIndicator={false}>
-      {/* Achievement Categories */}
       {achievementProgress.map((category) => (
         <View key={category.category} style={styles.section}>
           <Text style={styles.sectionTitle}>
@@ -532,32 +527,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#666",
     marginTop: 12,
-    textAlign: "center",
-  },
-  quickStatsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    backgroundColor: "white",
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  quickStat: {
-    alignItems: "center",
-  },
-  quickStatValue: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#007bff",
-  },
-  quickStatLabel: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 4,
     textAlign: "center",
   },
   bottomPadding: {

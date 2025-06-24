@@ -21,9 +21,6 @@ import { Audio } from "expo-av";
 import StarRating from "../components/StarRating";
 import { styles } from "../styles";
 
-const statusBarHeight =
-  Platform.OS === "ios" ? 44 : StatusBar.currentHeight || 24;
-
 export default function MainScreen({ navigation }: any) {
   const [tripsGroupedByDate, setTripsGroupedByDate] = useState<{
     [date: string]: Trip[];
@@ -37,6 +34,10 @@ export default function MainScreen({ navigation }: any) {
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [playingAudio, setPlayingAudio] = useState<Audio.Sound | null>(null);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [currentPlayingTripId, setCurrentPlayingTripId] = useState<
+    string | null
+  >(null);
 
   const loadTrips = async () => {
     try {
@@ -70,16 +71,63 @@ export default function MainScreen({ navigation }: any) {
     setSelectedTrips(tripsForDate);
   }, [selectedDate, tripsGroupedByDate]);
 
-  const playAudio = async (audioUrl: string) => {
+  const playAudio = async (audioUrl: string, tripId?: string) => {
     try {
       if (playingAudio) {
         await playingAudio.unloadAsync();
+        setPlayingAudio(null);
+        setIsPlayingAudio(false);
+        setCurrentPlayingTripId(null);
       }
-      const { sound } = await Audio.Sound.createAsync({ uri: audioUrl });
+
+      if (currentPlayingTripId === tripId && isPlayingAudio) {
+        return;
+      }
+
+      setIsPlayingAudio(true);
+      setCurrentPlayingTripId(tripId || null);
+
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: audioUrl },
+        {
+          shouldPlay: true,
+          progressUpdateIntervalMillis: 100,
+        }
+      );
+
       setPlayingAudio(sound);
-      await sound.playAsync();
+
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded) {
+          if (status.didJustFinish) {
+            setIsPlayingAudio(false);
+            setCurrentPlayingTripId(null);
+            setPlayingAudio(null);
+          }
+        }
+      });
+
+      console.log("[Audio] Started playing audio for trip:", tripId);
     } catch (error) {
+      console.error("[Audio] Error playing audio:", error);
+      setIsPlayingAudio(false);
+      setCurrentPlayingTripId(null);
       Alert.alert("Error", "Could not play audio");
+    }
+  };
+
+  const stopAudio = async () => {
+    try {
+      if (playingAudio) {
+        await playingAudio.stopAsync();
+        await playingAudio.unloadAsync();
+        setPlayingAudio(null);
+        setIsPlayingAudio(false);
+        setCurrentPlayingTripId(null);
+        console.log("[Audio] Stopped audio playback");
+      }
+    } catch (error) {
+      console.error("[Audio] Error stopping audio:", error);
     }
   };
 
@@ -91,6 +139,10 @@ export default function MainScreen({ navigation }: any) {
         style: "destructive",
         onPress: async () => {
           try {
+            if (currentPlayingTripId === tripId) {
+              await stopAudio();
+            }
+
             await deleteTrip(tripId);
             await loadTrips();
             setModalVisible(false);
@@ -220,7 +272,19 @@ export default function MainScreen({ navigation }: any) {
         <View style={styles.tripCardFooter}>
           <View style={styles.tripCardIcons}>
             {item.audioUrl && (
-              <MaterialIcons name="audiotrack" size={16} color="#28a745" />
+              <MaterialIcons
+                name={
+                  currentPlayingTripId === item.id && isPlayingAudio
+                    ? "pause"
+                    : "audiotrack"
+                }
+                size={16}
+                color={
+                  currentPlayingTripId === item.id && isPlayingAudio
+                    ? "#dc3545"
+                    : "#28a745"
+                }
+              />
             )}
             {item.weather && (
               <MaterialIcons
@@ -243,12 +307,20 @@ export default function MainScreen({ navigation }: any) {
   const renderTripDetails = () => {
     if (!selectedTrip) return null;
 
+    const isCurrentTripAudioPlaying =
+      currentPlayingTripId === selectedTrip.id && isPlayingAudio;
+
     return (
       <Modal
         animationType="slide"
         transparent={false}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={() => {
+          if (isPlayingAudio) {
+            stopAudio();
+          }
+          setModalVisible(false);
+        }}
       >
         <View style={styles.modalContainer}>
           <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
@@ -256,7 +328,12 @@ export default function MainScreen({ navigation }: any) {
           <View style={styles.modalHeader}>
             <TouchableOpacity
               style={styles.modalHeaderButton}
-              onPress={() => setModalVisible(false)}
+              onPress={() => {
+                if (isPlayingAudio) {
+                  stopAudio();
+                }
+                setModalVisible(false);
+              }}
             >
               <MaterialIcons name="close" size={24} color="#333" />
             </TouchableOpacity>
@@ -335,7 +412,10 @@ export default function MainScreen({ navigation }: any) {
                   <View style={styles.quickInfoContent}>
                     <Text style={styles.quickInfoLabel}>Weather</Text>
                     <Text style={styles.quickInfoValue}>
-                      {selectedTrip.weather.temperature}°C
+                      {selectedTrip.weather.temperature
+                        ? `${selectedTrip.weather.temperature}°C`
+                        : selectedTrip.weather.description ||
+                          selectedTrip.weather.condition}
                     </Text>
                   </View>
                 </View>
@@ -398,12 +478,61 @@ export default function MainScreen({ navigation }: any) {
                   <Text style={styles.tripDetailSectionTitle}>Audio Note</Text>
                 </View>
                 <TouchableOpacity
-                  style={styles.playAudioButton}
-                  onPress={() => playAudio(selectedTrip.audioUrl!)}
+                  style={[
+                    styles.playAudioButton,
+                    {
+                      backgroundColor: isCurrentTripAudioPlaying
+                        ? "#dc3545"
+                        : "#28a745",
+                    },
+                  ]}
+                  onPress={() => {
+                    if (isCurrentTripAudioPlaying) {
+                      stopAudio();
+                    } else {
+                      playAudio(selectedTrip.audioUrl!, selectedTrip.id);
+                    }
+                  }}
                 >
-                  <MaterialIcons name="play-arrow" size={24} color="white" />
-                  <Text style={styles.playAudioButtonText}>Play Recording</Text>
+                  <MaterialIcons
+                    name={isCurrentTripAudioPlaying ? "stop" : "play-arrow"}
+                    size={24}
+                    color="white"
+                  />
+                  <Text style={styles.playAudioButtonText}>
+                    {isCurrentTripAudioPlaying
+                      ? "Stop Recording"
+                      : "Play Recording"}
+                  </Text>
                 </TouchableOpacity>
+
+                {isCurrentTripAudioPlaying && (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginTop: 10,
+                      padding: 8,
+                      backgroundColor: "#fff3cd",
+                      borderRadius: 8,
+                      borderWidth: 1,
+                      borderColor: "#ffeaa7",
+                    }}
+                  >
+                    <MaterialIcons name="volume-up" size={16} color="#856404" />
+                    <Text
+                      style={{
+                        color: "#856404",
+                        fontSize: 12,
+                        marginLeft: 4,
+                        fontWeight: "500",
+                      }}
+                    >
+                      Audio is playing...
+                    </Text>
+                  </View>
+                )}
               </View>
             )}
 
@@ -422,9 +551,11 @@ export default function MainScreen({ navigation }: any) {
                 <View style={styles.weatherDetailContainer}>
                   <View style={styles.weatherMainCard}>
                     <View style={styles.weatherMainInfo}>
-                      <Text style={styles.weatherTemperature}>
-                        {selectedTrip.weather.temperature}°C
-                      </Text>
+                      {selectedTrip.weather.temperature && (
+                        <Text style={styles.weatherTemperature}>
+                          {selectedTrip.weather.temperature}°C
+                        </Text>
+                      )}
                       <Text style={styles.weatherCondition}>
                         {selectedTrip.weather.description ||
                           selectedTrip.weather.condition}
@@ -438,17 +569,19 @@ export default function MainScreen({ navigation }: any) {
                   </View>
 
                   <View style={styles.weatherDetailsGrid}>
-                    <View style={styles.weatherDetailItem}>
-                      <MaterialIcons
-                        name="water-drop"
-                        size={18}
-                        color="#4682B4"
-                      />
-                      <Text style={styles.weatherDetailLabel}>Humidity</Text>
-                      <Text style={styles.weatherDetailValue}>
-                        {selectedTrip.weather.humidity}%
-                      </Text>
-                    </View>
+                    {selectedTrip.weather.humidity && (
+                      <View style={styles.weatherDetailItem}>
+                        <MaterialIcons
+                          name="water-drop"
+                          size={18}
+                          color="#4682B4"
+                        />
+                        <Text style={styles.weatherDetailLabel}>Humidity</Text>
+                        <Text style={styles.weatherDetailValue}>
+                          {selectedTrip.weather.humidity}%
+                        </Text>
+                      </View>
+                    )}
 
                     {selectedTrip.weather.windSpeed && (
                       <View style={styles.weatherDetailItem}>
@@ -508,6 +641,14 @@ export default function MainScreen({ navigation }: any) {
     );
   };
 
+  useEffect(() => {
+    return () => {
+      if (playingAudio) {
+        playingAudio.unloadAsync();
+      }
+    };
+  }, []);
+
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
@@ -521,7 +662,7 @@ export default function MainScreen({ navigation }: any) {
         </View>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => navigation.navigate("Trip")}
+          onPress={() => navigation.navigate("CreateTrip")}
         >
           <MaterialIcons name="add" size={24} color="#007bff" />
         </TouchableOpacity>
@@ -578,23 +719,6 @@ export default function MainScreen({ navigation }: any) {
         <View style={styles.loadingContainerCenter}>
           <MaterialIcons name="hourglass-empty" size={48} color="#ccc" />
           <Text style={styles.loadingTextCenter}>Loading trips...</Text>
-        </View>
-      ) : selectedTrips.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <MaterialIcons name="explore-off" size={48} color="#ccc" />
-          <Text style={styles.emptyTitle}>No trips on this date</Text>
-          <Text style={styles.emptySubtitle}>
-            {selectedDate === new Date().toISOString().split("T")[0]
-              ? "Start your first adventure today!"
-              : "Select a date with trips or create a new one"}
-          </Text>
-          <TouchableOpacity
-            style={styles.createTripButton}
-            onPress={() => navigation.navigate("Trip")}
-          >
-            <MaterialIcons name="add" size={20} color="white" />
-            <Text style={styles.createTripButtonText}>Log New Trip</Text>
-          </TouchableOpacity>
         </View>
       ) : (
         <FlatList

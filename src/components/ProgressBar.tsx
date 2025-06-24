@@ -120,20 +120,14 @@ interface OverallProgressProps {
   totalPoints: number;
   unlockedAchievements: number;
   totalAchievements: number;
-  level?: number;
-  nextLevelPoints?: number;
 }
 
 export function OverallProgress({
   totalPoints,
   unlockedAchievements,
   totalAchievements,
-  level = 1,
-  nextLevelPoints = 1000,
 }: OverallProgressProps) {
   const overallProgress = (unlockedAchievements / totalAchievements) * 100;
-  const levelProgress =
-    ((totalPoints % nextLevelPoints) / nextLevelPoints) * 100;
 
   return (
     <View style={styles.overallContainer}>
@@ -233,15 +227,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#333",
   },
-  levelBadge: {
-    backgroundColor: "#007bff",
-    color: "white",
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-    fontSize: 12,
-    fontWeight: "bold",
-  },
   statsRow: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -258,19 +243,6 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 12,
     color: "#6c757d",
-    marginTop: 4,
-  },
-  progressLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
-    marginTop: 12,
-    marginBottom: 8,
-  },
-  levelProgress: {
-    fontSize: 12,
-    color: "#6c757d",
-    textAlign: "center",
     marginTop: 4,
   },
 });

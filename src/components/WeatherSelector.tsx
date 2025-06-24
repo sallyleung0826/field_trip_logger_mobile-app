@@ -8,22 +8,12 @@ import {
   ScrollView,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-
-export interface WeatherOption {
-  condition: string;
-  description: string;
-  icon: keyof typeof MaterialIcons.glyphMap;
-  color: string;
-  temperature?: number;
-}
-
-export interface SelectedWeather {
-  condition: string;
-  description: string;
-  temperature: number;
-  humidity: number;
-  windSpeed: number;
-}
+import {
+  getWeatherDescription,
+  SelectedWeather,
+  WEATHER_OPTIONS,
+  WeatherOption,
+} from "../lib/types/weather";
 
 interface WeatherSelectorProps {
   selectedWeather?: SelectedWeather;
@@ -31,160 +21,21 @@ interface WeatherSelectorProps {
   style?: any;
 }
 
-const WEATHER_OPTIONS: WeatherOption[] = [
-  {
-    condition: "sunny",
-    description: "Sunny",
-    icon: "wb-sunny",
-    color: "#FFD700",
-  },
-  {
-    condition: "partly-cloudy",
-    description: "Partly Cloudy",
-    icon: "wb-cloudy",
-    color: "#87CEEB",
-  },
-  {
-    condition: "cloudy",
-    description: "Cloudy",
-    icon: "cloud",
-    color: "#708090",
-  },
-  {
-    condition: "overcast",
-    description: "Overcast",
-    icon: "cloud",
-    color: "#696969",
-  },
-  {
-    condition: "light-rain",
-    description: "Light Rain",
-    icon: "grain",
-    color: "#4682B4",
-  },
-  {
-    condition: "rain",
-    description: "Rain",
-    icon: "grain",
-    color: "#1E90FF",
-  },
-  {
-    condition: "heavy-rain",
-    description: "Heavy Rain",
-    icon: "grain",
-    color: "#000080",
-  },
-  {
-    condition: "thunderstorm",
-    description: "Thunderstorm",
-    icon: "flash-on",
-    color: "#8A2BE2",
-  },
-  {
-    condition: "drizzle",
-    description: "Drizzle",
-    icon: "grain",
-    color: "#6495ED",
-  },
-  {
-    condition: "snow",
-    description: "Snow",
-    icon: "ac-unit",
-    color: "#B0E0E6",
-  },
-  {
-    condition: "fog",
-    description: "Fog",
-    icon: "foggy",
-    color: "#D3D3D3",
-  },
-  {
-    condition: "windy",
-    description: "Windy",
-    icon: "air",
-    color: "#20B2AA",
-  },
-];
-
-const TEMPERATURE_RANGES = [
-  { label: "Very Cold", range: "< 0°C", value: -5 },
-  { label: "Cold", range: "0-10°C", value: 5 },
-  { label: "Cool", range: "10-20°C", value: 15 },
-  { label: "Mild", range: "20-25°C", value: 22 },
-  { label: "Warm", range: "25-30°C", value: 27 },
-  { label: "Hot", range: "30-35°C", value: 32 },
-  { label: "Very Hot", range: "> 35°C", value: 38 },
-];
-
 export default function WeatherSelector({
   selectedWeather,
   onWeatherSelect,
   style,
 }: WeatherSelectorProps) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [tempModalVisible, setTempModalVisible] = useState(false);
-  const [selectedCondition, setSelectedCondition] =
-    useState<WeatherOption | null>(null);
 
-  const handleWeatherConditionSelect = (weather: WeatherOption) => {
-    setSelectedCondition(weather);
+  const handleWeatherSelect = (weather: WeatherOption) => {
+    const weatherData: SelectedWeather = {
+      condition: weather.condition,
+      description: weather.description,
+    };
+
+    onWeatherSelect(weatherData);
     setModalVisible(false);
-    setTempModalVisible(true);
-  };
-
-  const handleTemperatureSelect = (temperature: number) => {
-    if (selectedCondition) {
-      const weatherData: SelectedWeather = {
-        condition: selectedCondition.condition,
-        description: selectedCondition.description,
-        temperature: temperature,
-        humidity: getDefaultHumidity(selectedCondition.condition, temperature),
-        windSpeed: getDefaultWindSpeed(selectedCondition.condition),
-      };
-
-      onWeatherSelect(weatherData);
-      setTempModalVisible(false);
-      setSelectedCondition(null);
-    }
-  };
-
-  const getDefaultHumidity = (
-    condition: string,
-    temperature: number
-  ): number => {
-    const humidityMap: { [key: string]: number } = {
-      sunny: Math.max(30, 60 - Math.max(0, temperature - 25) * 2),
-      "partly-cloudy": 55,
-      cloudy: 65,
-      overcast: 70,
-      "light-rain": 80,
-      rain: 85,
-      "heavy-rain": 90,
-      thunderstorm: 85,
-      drizzle: 80,
-      snow: 75,
-      fog: 95,
-      windy: 50,
-    };
-    return humidityMap[condition] || 60;
-  };
-
-  const getDefaultWindSpeed = (condition: string): number => {
-    const windSpeedMap: { [key: string]: number } = {
-      sunny: 2,
-      "partly-cloudy": 3,
-      cloudy: 4,
-      overcast: 3,
-      "light-rain": 8,
-      rain: 12,
-      "heavy-rain": 15,
-      thunderstorm: 20,
-      drizzle: 6,
-      snow: 10,
-      fog: 1,
-      windy: 25,
-    };
-    return windSpeedMap[condition] || 5;
   };
 
   const getWeatherIcon = (
@@ -221,25 +72,11 @@ export default function WeatherSelector({
                 color={getWeatherColor(selectedWeather.condition)}
               />
               <View style={styles.weatherInfo}>
-                <Text style={styles.temperature}>
-                  {selectedWeather.temperature}°C
-                </Text>
                 <Text style={styles.condition}>
                   {selectedWeather.description}
                 </Text>
-              </View>
-            </View>
-            <View style={styles.weatherDetails}>
-              <View style={styles.weatherDetail}>
-                <MaterialIcons name="water-drop" size={14} color="#007bff" />
-                <Text style={styles.weatherDetailText}>
-                  {selectedWeather.humidity}%
-                </Text>
-              </View>
-              <View style={styles.weatherDetail}>
-                <MaterialIcons name="air" size={14} color="#007bff" />
-                <Text style={styles.weatherDetailText}>
-                  {selectedWeather.windSpeed} m/s
+                <Text style={styles.conditionSubtext}>
+                  Weather condition recorded
                 </Text>
               </View>
             </View>
@@ -254,7 +91,6 @@ export default function WeatherSelector({
         <MaterialIcons name="chevron-right" size={20} color="#ccc" />
       </TouchableOpacity>
 
-      {/* Weather Condition Selection Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -274,11 +110,20 @@ export default function WeatherSelector({
             </View>
 
             <ScrollView style={styles.optionsContainer}>
+              <Text style={styles.instructionText}>
+                Choose the weather condition that best describes the conditions
+                during your trip:
+              </Text>
+
               {WEATHER_OPTIONS.map((weather, index) => (
                 <TouchableOpacity
                   key={index}
-                  style={styles.weatherOption}
-                  onPress={() => handleWeatherConditionSelect(weather)}
+                  style={[
+                    styles.weatherOption,
+                    selectedWeather?.condition === weather.condition &&
+                      styles.selectedWeatherOption,
+                  ]}
+                  onPress={() => handleWeatherSelect(weather)}
                 >
                   <View
                     style={[
@@ -292,48 +137,28 @@ export default function WeatherSelector({
                       color={weather.color}
                     />
                   </View>
-                  <Text style={styles.weatherOptionText}>
-                    {weather.description}
-                  </Text>
-                  <MaterialIcons name="chevron-right" size={20} color="#ccc" />
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Temperature Selection Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={tempModalVisible}
-        onRequestClose={() => setTempModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Temperature Range</Text>
-              <TouchableOpacity
-                onPress={() => setTempModalVisible(false)}
-                style={styles.closeButton}
-              >
-                <MaterialIcons name="close" size={24} color="#666" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView style={styles.optionsContainer}>
-              {TEMPERATURE_RANGES.map((temp, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.temperatureOption}
-                  onPress={() => handleTemperatureSelect(temp.value)}
-                >
-                  <View style={styles.temperatureInfo}>
-                    <Text style={styles.temperatureLabel}>{temp.label}</Text>
-                    <Text style={styles.temperatureRange}>{temp.range}</Text>
+                  <View style={styles.weatherOptionContent}>
+                    <Text style={styles.weatherOptionText}>
+                      {weather.description}
+                    </Text>
+                    <Text style={styles.weatherOptionDescription}>
+                      {getWeatherDescription(weather.condition)}
+                    </Text>
                   </View>
-                  <MaterialIcons name="chevron-right" size={20} color="#ccc" />
+                  {selectedWeather?.condition === weather.condition && (
+                    <MaterialIcons
+                      name="check-circle"
+                      size={20}
+                      color="#00cc44"
+                    />
+                  )}
+                  {selectedWeather?.condition !== weather.condition && (
+                    <MaterialIcons
+                      name="chevron-right"
+                      size={20}
+                      color="#ccc"
+                    />
+                  )}
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -386,34 +211,20 @@ const styles = StyleSheet.create({
   weatherMain: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
   },
   weatherInfo: {
     marginLeft: 12,
   },
-  temperature: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1e293b",
-  },
   condition: {
-    fontSize: 12,
-    color: "#64748b",
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1e293b",
     textTransform: "capitalize",
-    marginTop: 2,
   },
-  weatherDetails: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-  },
-  weatherDetail: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  weatherDetailText: {
+  conditionSubtext: {
     fontSize: 12,
     color: "#64748b",
-    marginLeft: 4,
+    marginTop: 2,
   },
   placeholderContainer: {
     flex: 1,
@@ -457,12 +268,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 20,
   },
+  instructionText: {
+    fontSize: 14,
+    color: "#64748b",
+    textAlign: "center",
+    marginBottom: 20,
+    marginTop: 10,
+    lineHeight: 20,
+  },
   weatherOption: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 16,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#f8fafc",
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  selectedWeatherOption: {
+    backgroundColor: "#f0f9ff",
+    borderColor: "#007bff",
+    borderWidth: 1,
   },
   weatherIconContainer: {
     width: 48,
@@ -472,30 +299,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 16,
   },
+  weatherOptionContent: {
+    flex: 1,
+  },
   weatherOptionText: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#1e293b",
-  },
-  temperatureOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f8fafc",
-  },
-  temperatureInfo: {
-    flex: 1,
-  },
-  temperatureLabel: {
     fontSize: 16,
     fontWeight: "500",
     color: "#1e293b",
     marginBottom: 2,
   },
-  temperatureRange: {
-    fontSize: 14,
+  weatherOptionDescription: {
+    fontSize: 12,
     color: "#64748b",
+    lineHeight: 16,
   },
 });

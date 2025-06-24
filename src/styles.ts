@@ -2,7 +2,6 @@ import { Dimensions, StyleSheet, Platform, StatusBar } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
-// Calculate safe area margins for older devices
 const isIphoneX = () => {
   const dimen = Dimensions.get("window");
   return (
@@ -18,25 +17,27 @@ const isIphoneX = () => {
       dimen.height === 926 ||
       dimen.width === 926 ||
       dimen.height === 932 ||
-      dimen.width === 932)
+      dimen.width === 932 ||
+      dimen.height === 956 ||
+      dimen.width === 956)
   );
 };
 
 const statusBarHeight =
   Platform.OS === "ios"
     ? isIphoneX()
-      ? 44
+      ? 59
       : 20
     : StatusBar.currentHeight || 0;
 
 export const styles = StyleSheet.create({
-  // Common containers
   safeAreaContainer: {
     flex: 1,
     backgroundColor: "#f5f5f5",
   },
   safeAreaContent: {
     flex: 1,
+    backgroundColor: "#f5f5f5",
   },
   screenContainer: {
     flex: 1,
@@ -51,12 +52,12 @@ export const styles = StyleSheet.create({
     paddingTop: Platform.OS === "android" ? statusBarHeight + 20 : 20,
   },
 
-  // Background and overlay styles
   background: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     paddingTop: Platform.OS === "android" ? statusBarHeight : 0,
+    backgroundColor: "#f5f5f5",
   },
   homeOverlay: {
     backgroundColor: "rgba(0,0,0,0.6)",
@@ -91,7 +92,6 @@ export const styles = StyleSheet.create({
     elevation: 8,
   },
 
-  // Header styles with reduced padding
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -111,13 +111,12 @@ export const styles = StyleSheet.create({
     paddingBottom: 15,
     backgroundColor: "#f5f5f5",
   },
-  // Simple header without extra top padding
   simpleHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingTop: 15,
+    paddingTop: Platform.OS === "ios" ? (isIphoneX() ? 25 : 15) : 15,
     paddingBottom: 15,
     backgroundColor: "#f5f5f5",
   },
@@ -138,7 +137,6 @@ export const styles = StyleSheet.create({
     marginLeft: 12,
   },
 
-  // Professional header for trip screen
   professionalHeader: {
     backgroundColor: "#1a365d",
     paddingTop: statusBarHeight + 10,
@@ -163,7 +161,6 @@ export const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.8)",
   },
 
-  // Logo and branding
   logoContainer: {
     alignItems: "center",
     marginBottom: 30,
@@ -204,7 +201,6 @@ export const styles = StyleSheet.create({
     marginTop: 10,
   },
 
-  // Button styles
   buttonContainer: {
     width: "100%",
     marginBottom: 30,
@@ -267,7 +263,6 @@ export const styles = StyleSheet.create({
     padding: 8,
   },
 
-  // Input styles
   inputContainer: {
     width: "100%",
     marginBottom: 20,
@@ -304,7 +299,6 @@ export const styles = StyleSheet.create({
     padding: 10,
   },
 
-  // Auth specific styles
   authMethodContainer: {
     width: "100%",
   },
@@ -336,21 +330,21 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // Keyboard handling
   keyboardAvoidContainer: {
     flex: 1,
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "transparent",
   },
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingBottom: Platform.OS === "ios" ? 34 : 20,
+    paddingBottom: Platform.OS === "ios" ? (isIphoneX() ? 44 : 34) : 20,
+    backgroundColor: "transparent",
   },
 
-  // Section and card styles
   sectionContainer: {
     backgroundColor: "white",
     borderRadius: 10,
@@ -395,7 +389,6 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
   },
 
-  // Progress indicator
   progressContainer: {
     padding: 20,
     paddingBottom: 10,
@@ -417,7 +410,6 @@ export const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // Status indicators
   statusBadge: {
     width: 20,
     height: 20,
@@ -432,7 +424,6 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // Trip card styles
   tripCard: {
     flexDirection: "row",
     backgroundColor: "white",
@@ -497,7 +488,6 @@ export const styles = StyleSheet.create({
     color: "#666",
   },
 
-  // Calendar styles
   calendarContainer: {
     backgroundColor: "white",
     marginHorizontal: 20,
@@ -536,7 +526,6 @@ export const styles = StyleSheet.create({
     color: "#64748b",
   },
 
-  // Date picker styles
   dateCard: {
     backgroundColor: "white",
     borderRadius: 12,
@@ -561,7 +550,6 @@ export const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // Location styles
   locationCard: {
     backgroundColor: "white",
     borderRadius: 12,
@@ -607,7 +595,6 @@ export const styles = StyleSheet.create({
     marginLeft: 4,
   },
 
-  // Action card styles
   actionCard: {
     backgroundColor: "white",
     borderRadius: 12,
@@ -635,7 +622,6 @@ export const styles = StyleSheet.create({
     color: "#64748b",
   },
 
-  // Media handling styles
   mediaGrid: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -693,7 +679,6 @@ export const styles = StyleSheet.create({
     marginTop: 4,
   },
 
-  // Audio styles
   audioPreview: {
     backgroundColor: "white",
     borderRadius: 12,
@@ -755,7 +740,6 @@ export const styles = StyleSheet.create({
     marginLeft: 8,
   },
 
-  // Description input
   descriptionInput: {
     backgroundColor: "white",
     borderRadius: 12,
@@ -771,7 +755,6 @@ export const styles = StyleSheet.create({
     elevation: 2,
   },
 
-  // Rating styles
   ratingContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -806,7 +789,6 @@ export const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  // Bottom actions
   bottomActions: {
     backgroundColor: "white",
     paddingHorizontal: 20,
@@ -838,7 +820,6 @@ export const styles = StyleSheet.create({
     marginLeft: 8,
   },
 
-  // Modal styles
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
@@ -880,7 +861,6 @@ export const styles = StyleSheet.create({
     maxHeight: height * 0.85,
   },
 
-  // Photo modal specific
   photoModal: {
     backgroundColor: "white",
     borderRadius: 20,
@@ -928,7 +908,6 @@ export const styles = StyleSheet.create({
     color: "#64748b",
   },
 
-  // Loading modal
   loadingOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.7)",
@@ -971,7 +950,6 @@ export const styles = StyleSheet.create({
     borderRadius: 2,
   },
 
-  // Trip detail styles
   tripDetailImage: {
     width: "100%",
     height: 300,
@@ -1057,7 +1035,6 @@ export const styles = StyleSheet.create({
     marginTop: 8,
   },
 
-  // Weather detail styles
   weatherDetailContainer: {
     backgroundColor: "#f8fafc",
     borderRadius: 12,
@@ -1106,7 +1083,6 @@ export const styles = StyleSheet.create({
     color: "#1e293b",
   },
 
-  // Metadata styles
   metadataContainer: {
     backgroundColor: "#f8fafc",
     borderRadius: 12,
@@ -1128,7 +1104,6 @@ export const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // Empty state styles
   emptyContainer: {
     flex: 1,
     alignItems: "center",
@@ -1178,7 +1153,6 @@ export const styles = StyleSheet.create({
     fontSize: 16,
   },
 
-  // Create trip button
   createTripButton: {
     flexDirection: "row",
     backgroundColor: "#007bff",
@@ -1199,7 +1173,6 @@ export const styles = StyleSheet.create({
     marginLeft: 8,
   },
 
-  // List styles
   tripsList: {
     flex: 1,
   },
@@ -1211,7 +1184,6 @@ export const styles = StyleSheet.create({
     paddingBottom: 20,
   },
 
-  // Loading styles
   loadingContainerCenter: {
     flex: 1,
     alignItems: "center",
@@ -1224,7 +1196,6 @@ export const styles = StyleSheet.create({
     marginTop: 12,
   },
 
-  // Tab styles
   tabContainer: {
     flexDirection: "row",
     backgroundColor: "#f8f9fa",
@@ -1261,7 +1232,6 @@ export const styles = StyleSheet.create({
     color: "#007bff",
   },
 
-  // Weather widget styles
   weatherContainer: {
     backgroundColor: "white",
     borderRadius: 10,
@@ -1313,7 +1283,6 @@ export const styles = StyleSheet.create({
     color: "#333",
   },
 
-  // Article feed styles
   articleContainer: {
     backgroundColor: "white",
     borderRadius: 10,
@@ -1400,7 +1369,6 @@ export const styles = StyleSheet.create({
     color: "#999",
   },
 
-  // Location rating styles
   locationRatingCard: {
     backgroundColor: "white",
     borderRadius: 10,
@@ -1434,12 +1402,10 @@ export const styles = StyleSheet.create({
     color: "#999",
   },
 
-  // Bottom padding
   bottomPadding: {
-    height: Platform.OS === "ios" ? 40 : 20,
+    height: Platform.OS === "ios" ? (isIphoneX() ? 44 : 20) : 20,
   },
 
-  // Error banner styles
   errorBanner: {
     flexDirection: "row",
     alignItems: "center",
@@ -1480,7 +1446,6 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // Header info styles
   headerInfo: {
     backgroundColor: "white",
     padding: 16,
@@ -1509,7 +1474,6 @@ export const styles = StyleSheet.create({
     fontStyle: "italic",
   },
 
-  // Enhanced trip card styles
   enhancedTripCard: {
     backgroundColor: "white",
     borderRadius: 12,
@@ -1530,7 +1494,6 @@ export const styles = StyleSheet.create({
     paddingBottom: 10,
   },
 
-  // Weather section styles
   weatherSection: {
     backgroundColor: "#f8f9fa",
     padding: 15,
@@ -1550,7 +1513,6 @@ export const styles = StyleSheet.create({
     lineHeight: 20,
   },
 
-  // Trip details enhancement
   tripDetailsSection: {
     padding: 20,
     borderBottomWidth: 1,
@@ -1562,7 +1524,6 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
-  // Delete button
   deleteButton: {
     backgroundColor: "#d9534f",
     flexDirection: "row",
@@ -1579,7 +1540,6 @@ export const styles = StyleSheet.create({
     marginLeft: 10,
   },
 
-  // Trip screen specific styles
   tripScreenContainer: {
     flexGrow: 1,
     padding: 20,
@@ -1615,7 +1575,6 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
-  // Main screen specific
   mainScreenContainer: {
     flex: 1,
     backgroundColor: "#f5f5f5",
@@ -1625,7 +1584,6 @@ export const styles = StyleSheet.create({
     paddingBottom: Platform.OS === "ios" ? 90 : 70,
   },
 
-  // Enhanced modal styles
   enhancedModalContainer: {
     flex: 1,
     backgroundColor: "white",
@@ -1635,7 +1593,6 @@ export const styles = StyleSheet.create({
     paddingBottom: Platform.OS === "ios" ? 34 : 20,
   },
 
-  // Show more button
   showMoreButton: {
     alignSelf: "flex-end",
     backgroundColor: "#007bff",
@@ -1648,7 +1605,6 @@ export const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  // Close button for modals
   closeButton: {
     backgroundColor: "#6c757d",
     padding: 15,
@@ -1662,12 +1618,10 @@ export const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  // Logout button
   logoutButton: {
     padding: 10,
   },
 
-  // General placeholder styles
   placeholderText: {
     fontSize: 16,
     color: "#888",
@@ -1675,7 +1629,6 @@ export const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  // Capture buttons
   captureButton: {
     backgroundColor: "#007bff",
     padding: 15,
@@ -1690,7 +1643,6 @@ export const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  // Map styles
   map: {
     width: "100%",
     height: 300,
@@ -1703,7 +1655,6 @@ export const styles = StyleSheet.create({
     marginBottom: 15,
   },
 
-  // Photo modal content
   photoModalContent: {
     width: "90%",
     backgroundColor: "white",

@@ -11,7 +11,8 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow to use your location."
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "splash": {
       "image": "./assets/splash-icon.png",

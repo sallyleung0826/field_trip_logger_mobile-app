@@ -27,6 +27,12 @@ export interface Trip {
   title?: string;
 }
 
+export interface LocationData {
+  latitude: number;
+  longitude: number;
+  address: string;
+}
+
 export interface LocationRating {
   id: string;
   latitude: number;
@@ -87,3 +93,9 @@ export interface EnhancedLocationRating extends LocationRating {
   photos: string[];
   tags: string[];
 }
+
+export const HONG_KONG_LOCATION = {
+  latitude: 22.3193,
+  longitude: 114.1694,
+  address: "Hong Kong",
+};

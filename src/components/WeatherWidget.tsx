@@ -10,6 +10,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { fetchWeatherData } from "../lib/services/apis/weatherApi";
 import { WeatherData } from "../lib/services/apis/types/apiTypes";
+import { getWeatherColor, getWeatherIcon } from "../lib/types/weather";
 
 interface WeatherWidgetProps {
   style?: any;
@@ -134,42 +135,6 @@ export default function WeatherWidget({ style, location }: WeatherWidgetProps) {
     );
     loadWeatherData();
   }, [location]);
-
-  const getWeatherIcon = (
-    condition: string
-  ): keyof typeof MaterialIcons.glyphMap => {
-    const iconMap: { [key: string]: keyof typeof MaterialIcons.glyphMap } = {
-      clear: "wb-sunny",
-      clouds: "cloud",
-      rain: "grain",
-      snow: "ac-unit",
-      thunderstorm: "flash-on",
-      drizzle: "grain",
-      mist: "foggy",
-      fog: "foggy",
-    };
-
-    const icon = iconMap[condition.toLowerCase()] || "wb-cloudy";
-    console.log("[Weather Widget] Weather icon for", condition, ":", icon);
-    return icon;
-  };
-
-  const getWeatherColor = (condition: string) => {
-    const colorMap: { [key: string]: string } = {
-      clear: "#FFD700",
-      clouds: "#87CEEB",
-      rain: "#4682B4",
-      snow: "#B0E0E6",
-      thunderstorm: "#8A2BE2",
-      drizzle: "#4682B4",
-      mist: "#D3D3D3",
-      fog: "#D3D3D3",
-    };
-
-    const color = colorMap[condition.toLowerCase()] || "#87CEEB";
-    console.log("[Weather Widget] Weather color for", condition, ":", color);
-    return color;
-  };
 
   if (loading) {
     console.log("[Weather Widget] Rendering loading state");

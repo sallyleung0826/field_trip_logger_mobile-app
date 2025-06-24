@@ -3,123 +3,107 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Alert,
-  StatusBar,
-  ScrollView,
   SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Alert,
+  StyleSheet,
+  Dimensions,
+  Modal,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { logout } from "../firebase/auth";
 import { auth } from "../firebase/config";
-import { fetchUserTrips } from "../firebase/firebaseService";
-import { reverseGeocode } from "../lib/services/apis/geocodingApi";
-import * as Location from "expo-location";
-import { styles } from "../styles";
+import { signOut } from "firebase/auth";
+import {
+  calculateUserStats,
+  getAchievementProgress,
+} from "../firebase/firebaseService";
+import {
+  UserStats,
+  AchievementProgress,
+  Achievement,
+  AchievementCategory,
+} from "../lib/types/trip";
+import AchievementCard from "../components/AchievementCard";
+import { OverallProgress } from "../components/ProgressBar";
+
+const { width } = Dimensions.get("window");
 
 export default function ProfileScreen({ navigation }: any) {
-  const [userStats, setUserStats] = useState({
+  const [userStats, setUserStats] = useState<UserStats>({
     totalTrips: 0,
-    totalRatings: 0,
     averageRating: 0,
-    favoriteLocation: "No trips yet",
+    totalRatings: 0,
+    photosTaken: 0,
+    audioRecorded: 0,
+    uniqueLocations: 0,
+    longestTrip: 0,
+    totalDuration: 0,
+    streakCurrent: 0,
+    streakLongest: 0,
+    perfectRatings: 0,
+    companionTrips: 0,
+    weatherConditionsCovered: [],
+    seasonsCovered: [],
+    achievementPoints: 0,
+    unlockedAchievements: 0,
   });
-  const [recentLocation, setRecentLocation] = useState<string>("Loading...");
+
+  const [achievementProgress, setAchievementProgress] = useState<
+    AchievementProgress[]
+  >([]);
   const [loading, setLoading] = useState(true);
+  const [selectedAchievement, setSelectedAchievement] =
+    useState<Achievement | null>(null);
+  const [achievementModalVisible, setAchievementModalVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState<"overview" | "achievements">(
+    "overview"
+  );
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    try {
+      setLoading(true);
+      const [stats, progress] = await Promise.all([
+        calculateUserStats(),
+        getAchievementProgress(),
+      ]);
+
+      setUserStats(stats);
+      setAchievementProgress(progress);
+    } catch (error) {
+      console.error("Error loading user data:", error);
+      Alert.alert("Error", "Failed to load user data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
-    Alert.alert("Confirm Logout", "Are you sure you want to sign out?", [
+    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Sign Out",
         style: "destructive",
         onPress: async () => {
           try {
-            await logout();
+            await signOut(auth);
           } catch (error) {
-            Alert.alert("Error", "Could not log out.");
+            console.error("Error signing out:", error);
+            Alert.alert("Error", "Failed to sign out. Please try again.");
           }
         },
       },
     ]);
   };
 
-  const getCurrentLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setRecentLocation("Location permission denied");
-        return;
-      }
-
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
-
-      const geocodeResult = await reverseGeocode(
-        location.coords.latitude,
-        location.coords.longitude
-      );
-
-      if (geocodeResult) {
-        setRecentLocation(geocodeResult.city || geocodeResult.formattedAddress);
-      } else {
-        setRecentLocation(
-          `${location.coords.latitude.toFixed(
-            4
-          )}, ${location.coords.longitude.toFixed(4)}`
-        );
-      }
-    } catch (error) {
-      setRecentLocation("Unable to get location");
-    }
+  const handleAchievementPress = (achievement: Achievement) => {
+    setSelectedAchievement(achievement);
+    setAchievementModalVisible(true);
   };
-
-  const loadUserStats = async () => {
-    try {
-      setLoading(true);
-      const trips = await fetchUserTrips();
-      const ratingsData = trips.filter(
-        (trip) => trip.rating && trip.rating > 0
-      );
-
-      const stats = {
-        totalTrips: trips.length,
-        totalRatings: ratingsData.length,
-        averageRating:
-          ratingsData.length > 0
-            ? ratingsData.reduce((sum, trip) => sum + (trip.rating || 0), 0) /
-              ratingsData.length
-            : 0,
-        favoriteLocation:
-          trips.length > 0
-            ? trips[0].location.address || "Recent trip location"
-            : "No trips yet",
-      };
-
-      setUserStats(stats);
-    } catch (error) {
-      setUserStats({
-        totalTrips: 0,
-        totalRatings: 0,
-        averageRating: 0,
-        favoriteLocation: "Unable to load trips",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      loadUserStats();
-      getCurrentLocation();
-    });
-
-    loadUserStats();
-    getCurrentLocation();
-
-    return unsubscribe;
-  }, [navigation]);
 
   const StatCard = ({
     icon,
@@ -132,109 +116,224 @@ export default function ProfileScreen({ navigation }: any) {
     value: string | number;
     subtitle?: string;
   }) => (
-    <View
-      style={{
-        backgroundColor: "white",
-        borderRadius: 10,
-        padding: 20,
-        marginBottom: 15,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-        alignItems: "center",
-      }}
-    >
-      <MaterialIcons name={icon as any} size={32} color="#007bff" />
-      <Text
-        style={{
-          fontSize: 24,
-          fontWeight: "bold",
-          color: "#333",
-          marginTop: 10,
-        }}
-      >
-        {value}
-      </Text>
-      <Text
-        style={{
-          fontSize: 14,
-          fontWeight: "600",
-          color: "#666",
-          textAlign: "center",
-        }}
-      >
-        {title}
-      </Text>
-      {subtitle && (
-        <Text
-          style={{
-            fontSize: 12,
-            color: "#999",
-            textAlign: "center",
-            marginTop: 4,
-          }}
-        >
-          {subtitle}
-        </Text>
-      )}
+    <View style={styles.statCard}>
+      <MaterialIcons name={icon as any} size={24} color="#007bff" />
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statTitle}>{title}</Text>
+      {subtitle && <Text style={styles.statSubtitle}>{subtitle}</Text>}
     </View>
   );
 
-  const MenuOption = ({
-    icon,
-    title,
-    onPress,
-    danger = false,
-  }: {
-    icon: string;
-    title: string;
-    onPress: () => void;
-    danger?: boolean;
-  }) => (
-    <TouchableOpacity
-      style={{
-        backgroundColor: "white",
-        borderRadius: 10,
-        padding: 15,
-        marginBottom: 10,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,
-        flexDirection: "row",
-        alignItems: "center",
-      }}
-      onPress={onPress}
-      activeOpacity={0.8}
-    >
-      <MaterialIcons
-        name={icon as any}
-        size={24}
-        color={danger ? "#d9534f" : "#007bff"}
+  const renderRecentAchievements = () => {
+    const recentUnlocked = achievementProgress
+      .flatMap((category) => category.achievements)
+      .filter((achievement) => achievement.unlocked)
+      .sort((a, b) => {
+        if (!a.unlockedDate || !b.unlockedDate) return 0;
+        return (
+          new Date(b.unlockedDate).getTime() -
+          new Date(a.unlockedDate).getTime()
+        );
+      })
+      .slice(0, 3);
+
+    if (recentUnlocked.length === 0) {
+      return (
+        <View style={styles.emptyAchievements}>
+          <MaterialIcons name="emoji-events" size={48} color="#ccc" />
+          <Text style={styles.emptyAchievementsText}>
+            Start your adventure to unlock achievements!
+          </Text>
+        </View>
+      );
+    }
+
+    return (
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {recentUnlocked.map((achievement) => (
+          <AchievementCard
+            key={achievement.id}
+            achievement={achievement}
+            onPress={handleAchievementPress}
+            compact={true}
+          />
+        ))}
+      </ScrollView>
+    );
+  };
+
+  const renderOverviewTab = () => (
+    <ScrollView style={styles.tabContent} showsVerticalScrollIndicator={false}>
+      {/* Overall Achievement Progress */}
+      <OverallProgress
+        totalPoints={userStats.achievementPoints}
+        unlockedAchievements={userStats.unlockedAchievements}
+        totalAchievements={achievementProgress.reduce(
+          (sum, cat) => sum + cat.achievements.length,
+          0
+        )}
+        level={Math.floor(userStats.achievementPoints / 1000) + 1}
+        nextLevelPoints={1000}
       />
-      <Text
-        style={{
-          marginLeft: 15,
-          fontSize: 16,
-          fontWeight: "500",
-          color: danger ? "#d9534f" : "#333",
-          flex: 1,
-        }}
-      >
-        {title}
-      </Text>
-      <MaterialIcons name="chevron-right" size={20} color="#ccc" />
-    </TouchableOpacity>
+
+      {/* Adventure Stats */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>📊 Your Adventure Stats</Text>
+
+        <View style={styles.statsGrid}>
+          <StatCard
+            icon="list"
+            title="Total Trips"
+            value={loading ? "..." : userStats.totalTrips}
+          />
+          <StatCard
+            icon="star"
+            title="Avg Rating"
+            value={
+              loading
+                ? "..."
+                : userStats.averageRating > 0
+                ? userStats.averageRating.toFixed(1)
+                : "—"
+            }
+            subtitle={`${userStats.totalRatings} ratings given`}
+          />
+          <StatCard
+            icon="camera"
+            title="Photos"
+            value={loading ? "..." : userStats.photosTaken}
+          />
+          <StatCard
+            icon="mic"
+            title="Audio"
+            value={loading ? "..." : userStats.audioRecorded}
+          />
+          <StatCard
+            icon="place"
+            title="Locations"
+            value={loading ? "..." : userStats.uniqueLocations}
+          />
+        </View>
+      </View>
+
+      {/* Recent Achievements */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>🏆 Recent Achievements</Text>
+          <TouchableOpacity
+            onPress={() => setActiveTab("achievements")}
+            style={styles.viewAllButton}
+          >
+            <Text style={styles.viewAllText}>View All</Text>
+            <MaterialIcons name="arrow-forward" size={16} color="#007bff" />
+          </TouchableOpacity>
+        </View>
+        {renderRecentAchievements()}
+      </View>
+    </ScrollView>
+  );
+
+  const renderAchievementsTab = () => (
+    <ScrollView style={styles.tabContent} showsVerticalScrollIndicator={false}>
+      {/* Achievement Categories */}
+      {achievementProgress.map((category) => (
+        <View key={category.category} style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            {getCategoryIcon(category.category)}{" "}
+            {category.category.toLowerCase().replace("_", " ")}
+          </Text>
+          {category.achievements.map((achievement) => (
+            <AchievementCard
+              key={achievement.id}
+              achievement={achievement}
+              onPress={handleAchievementPress}
+              compact={false}
+            />
+          ))}
+        </View>
+      ))}
+
+      <View style={styles.bottomPadding} />
+    </ScrollView>
+  );
+
+  const getCategoryIcon = (category: AchievementCategory): string => {
+    const icons = {
+      [AchievementCategory.EXPLORER]: "🚀",
+      [AchievementCategory.PHOTOGRAPHER]: "📷",
+      [AchievementCategory.WEATHER]: "🌦️",
+      [AchievementCategory.DISTANCE]: "🗺️",
+      [AchievementCategory.QUALITY]: "⭐",
+      [AchievementCategory.SPECIAL]: "✨",
+    };
+    return icons[category] || "🏆";
+  };
+
+  const renderAchievementModal = () => (
+    <Modal
+      visible={achievementModalVisible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={() => setAchievementModalVisible(false)}
+    >
+      <SafeAreaView style={styles.modalContainer}>
+        <View style={styles.modalHeader}>
+          <TouchableOpacity
+            onPress={() => setAchievementModalVisible(false)}
+            style={styles.modalCloseButton}
+          >
+            <MaterialIcons name="close" size={24} color="#333" />
+          </TouchableOpacity>
+          <Text style={styles.modalTitle}>Achievement Details</Text>
+          <View style={styles.modalHeaderSpacer} />
+        </View>
+
+        {selectedAchievement && (
+          <View style={styles.modalContent}>
+            <AchievementCard
+              achievement={selectedAchievement}
+              compact={false}
+            />
+
+            <View style={styles.modalDetails}>
+              <Text style={styles.modalDetailTitle}>Category</Text>
+              <Text style={styles.modalDetailText}>
+                {selectedAchievement.category.toLowerCase().replace("_", " ")}
+              </Text>
+
+              <Text style={styles.modalDetailTitle}>Rarity</Text>
+              <Text style={styles.modalDetailText}>
+                {selectedAchievement.rarity}
+              </Text>
+
+              <Text style={styles.modalDetailTitle}>Points Reward</Text>
+              <Text style={styles.modalDetailText}>
+                {selectedAchievement.points} points
+              </Text>
+
+              {selectedAchievement.unlocked &&
+                selectedAchievement.unlockedDate && (
+                  <>
+                    <Text style={styles.modalDetailTitle}>Unlocked Date</Text>
+                    <Text style={styles.modalDetailText}>
+                      {new Date(
+                        selectedAchievement.unlockedDate
+                      ).toLocaleDateString()}
+                    </Text>
+                  </>
+                )}
+            </View>
+          </View>
+        )}
+      </SafeAreaView>
+    </Modal>
   );
 
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
 
-      <View style={[styles.simpleHeader, { paddingTop: 30 }]}>
+      <View style={styles.header}>
         <View>
           <Text style={styles.headerTitle}>👤 Profile</Text>
           <Text style={styles.headerSubtitle}>
@@ -246,54 +345,274 @@ export default function ProfileScreen({ navigation }: any) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-        <View style={{ paddingHorizontal: 20, paddingTop: 10 }}>
-          <Text
-            style={{
-              fontSize: 18,
-              fontWeight: "bold",
-              color: "#333",
-              marginBottom: 15,
-            }}
-          >
-            📊 Your Adventure Stats
-          </Text>
-
-          <View
-            style={{ flexDirection: "row", justifyContent: "space-between" }}
-          >
-            <View style={{ flex: 1, marginRight: 7.5 }}>
-              <StatCard
-                icon="list"
-                title="Total Trips"
-                value={loading ? "..." : userStats.totalTrips}
-              />
-            </View>
-            <View style={{ flex: 1, marginLeft: 7.5 }}>
-              <StatCard
-                icon="star"
-                title="Avg Rating"
-                value={
-                  loading
-                    ? "..."
-                    : userStats.averageRating > 0
-                    ? userStats.averageRating.toFixed(1)
-                    : "—"
-                }
-                subtitle={`${userStats.totalRatings} ratings given`}
-              />
-            </View>
-          </View>
-
-          <StatCard
-            icon="place"
-            title="Recent Location"
-            value={recentLocation}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            activeTab === "overview" && styles.activeTabButton,
+          ]}
+          onPress={() => setActiveTab("overview")}
+        >
+          <MaterialIcons
+            name="dashboard"
+            size={20}
+            color={activeTab === "overview" ? "#007bff" : "#6c757d"}
           />
-        </View>
+          <Text
+            style={[
+              styles.tabButtonText,
+              activeTab === "overview" && styles.activeTabButtonText,
+            ]}
+          >
+            Overview
+          </Text>
+        </TouchableOpacity>
 
-        <View style={styles.bottomPadding} />
-      </ScrollView>
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            activeTab === "achievements" && styles.activeTabButton,
+          ]}
+          onPress={() => setActiveTab("achievements")}
+        >
+          <MaterialIcons
+            name="emoji-events"
+            size={20}
+            color={activeTab === "achievements" ? "#007bff" : "#6c757d"}
+          />
+          <Text
+            style={[
+              styles.tabButtonText,
+              activeTab === "achievements" && styles.activeTabButtonText,
+            ]}
+          >
+            Achievements
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {activeTab === "overview" ? renderOverviewTab() : renderAchievementsTab()}
+
+      {renderAchievementModal()}
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeAreaContainer: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingTop: 30,
+    paddingBottom: 15,
+    backgroundColor: "#f5f5f5",
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 2,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: "#666",
+  },
+  logoutButton: {
+    padding: 8,
+    borderRadius: 8,
+  },
+  tabContainer: {
+    flexDirection: "row",
+    backgroundColor: "white",
+    marginHorizontal: 20,
+    marginBottom: 10,
+    borderRadius: 12,
+    padding: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  tabButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  activeTabButton: {
+    backgroundColor: "#f0f9ff",
+  },
+  tabButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#6c757d",
+    marginLeft: 8,
+  },
+  activeTabButtonText: {
+    color: "#007bff",
+  },
+  tabContent: {
+    flex: 1,
+  },
+  section: {
+    marginHorizontal: 20,
+    marginBottom: 20,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 15,
+  },
+  viewAllButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  viewAllText: {
+    fontSize: 14,
+    color: "#007bff",
+    marginRight: 4,
+  },
+  statsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  statCard: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+    width: (width - 60) / 2,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  statTitle: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+  },
+  statSubtitle: {
+    fontSize: 12,
+    color: "#999",
+    textAlign: "center",
+    marginTop: 2,
+  },
+  emptyAchievements: {
+    alignItems: "center",
+    paddingVertical: 40,
+  },
+  emptyAchievementsText: {
+    fontSize: 16,
+    color: "#666",
+    marginTop: 12,
+    textAlign: "center",
+  },
+  quickStatsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  quickStat: {
+    alignItems: "center",
+  },
+  quickStatValue: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#007bff",
+  },
+  quickStatLabel: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 4,
+    textAlign: "center",
+  },
+  bottomPadding: {
+    height: 80,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: "white",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e5e5e5",
+  },
+  modalCloseButton: {
+    padding: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  modalHeaderSpacer: {
+    width: 40,
+  },
+  modalContent: {
+    flex: 1,
+    padding: 20,
+  },
+  modalDetails: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 20,
+    marginTop: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  modalDetailTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  modalDetailText: {
+    fontSize: 14,
+    color: "#666",
+    textTransform: "capitalize",
+  },
+});

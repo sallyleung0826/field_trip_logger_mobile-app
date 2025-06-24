@@ -20,6 +20,11 @@ export interface Trip {
     windSpeed: number;
   };
   tags?: string[];
+  duration?: number;
+  companions?: string[];
+  mood?: string;
+  highlights?: string[];
+  title?: string;
 }
 
 export interface LocationRating {
@@ -31,4 +36,146 @@ export interface LocationRating {
   averageRating: number;
   totalRatings: number;
   lastUpdated: any;
+}
+
+export interface MapMarker {
+  id: string;
+  latitude: number;
+  longitude: number;
+  trip: Trip;
+  rating: number;
+}
+
+export interface ClusteredMarker {
+  id: string;
+  latitude: number;
+  longitude: number;
+  trips: Trip[];
+  averageRating: number;
+  isCluster: boolean;
+  clusterSize?: number;
+}
+
+export interface MapRegion {
+  latitude: number;
+  longitude: number;
+  latitudeDelta: number;
+  longitudeDelta: number;
+}
+
+export interface MarkerClusterConfig {
+  clusterDistance: number;
+  minClusterSize: number;
+  maxClusterSize: number;
+  clusterRadius: number;
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  category: AchievementCategory;
+  type: AchievementType;
+  target: number;
+  current: number;
+  unlocked: boolean;
+  unlockedDate?: string;
+  rarity: AchievementRarity;
+  points: number;
+  badge?: {
+    color: string;
+    gradient: string[];
+  };
+}
+
+export enum AchievementCategory {
+  EXPLORER = "EXPLORER",
+  PHOTOGRAPHER = "PHOTOGRAPHER",
+  WEATHER = "WEATHER",
+  DISTANCE = "DISTANCE",
+  QUALITY = "QUALITY",
+  SPECIAL = "SPECIAL",
+}
+
+export enum AchievementType {
+  TOTAL_TRIPS = "TOTAL_TRIPS",
+  PHOTOS_TAKEN = "PHOTOS_TAKEN",
+  AUDIO_RECORDED = "AUDIO_RECORDED",
+  HIGH_RATINGS = "HIGH_RATINGS",
+  DIFFERENT_LOCATIONS = "DIFFERENT_LOCATIONS",
+  WEATHER_CONDITIONS = "WEATHER_CONDITIONS",
+  TRIP_STREAK = "TRIP_STREAK",
+  LONG_TRIPS = "LONG_TRIPS",
+  COMPANION_TRIPS = "COMPANION_TRIPS",
+  PERFECT_RATINGS = "PERFECT_RATINGS",
+  EARLY_BIRD = "EARLY_BIRD",
+  NIGHT_OWL = "NIGHT_OWL",
+  SEASONS_COVERED = "SEASONS_COVERED",
+}
+
+export enum AchievementRarity {
+  COMMON = "COMMON",
+  UNCOMMON = "UNCOMMON",
+  RARE = "RARE",
+  EPIC = "EPIC",
+  LEGENDARY = "LEGENDARY",
+}
+
+export interface UserStats {
+  totalTrips: number;
+  averageRating: number;
+  totalRatings: number;
+  photosTaken: number;
+  audioRecorded: number;
+  uniqueLocations: number;
+  longestTrip: number;
+  totalDuration: number;
+  streakCurrent: number;
+  streakLongest: number;
+  lastTripDate?: string;
+  firstTripDate?: string;
+  favoriteWeather?: string;
+  perfectRatings: number;
+  companionTrips: number;
+  weatherConditionsCovered: string[];
+  seasonsCovered: string[];
+  achievementPoints: number;
+  unlockedAchievements: number;
+}
+
+export interface AchievementProgress {
+  category: AchievementCategory;
+  achievements: Achievement[];
+  categoryProgress: number; // 0-100
+  nextAchievement?: Achievement;
+}
+
+export interface MapFilter {
+  ratingRange: [number, number];
+  dateRange?: [Date, Date];
+  weatherConditions?: string[];
+  showClusters: boolean;
+  showTopRated: boolean;
+}
+
+export interface MapSearchResult {
+  location: {
+    latitude: number;
+    longitude: number;
+    address: string;
+  };
+  trips: Trip[];
+  distance?: number;
+}
+
+export interface EnhancedLocationRating extends LocationRating {
+  tripCount: number;
+  mostRecentTrip: string;
+  weatherData?: {
+    condition: string;
+    temperature: number;
+  };
+  photos: string[];
+  tags: string[];
 }

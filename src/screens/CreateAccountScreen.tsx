@@ -94,14 +94,7 @@ export default function CreateAccountScreen({ navigation }: any) {
 
       Alert.alert(
         "🎉 Account Created Successfully!",
-        "Welcome to Field Trip Logger! Your account has been created and you're ready to start documenting your adventures.",
-        [
-          {
-            text: "Get Started",
-            onPress: () => navigation.replace("MainTabs"),
-            style: "default",
-          },
-        ]
+        "Welcome to Field Trip Logger! Your account has been created and you're ready to start documenting your adventures."
       );
     } catch (error: any) {
       let errorMessage = "Account creation failed. Please try again.";
@@ -207,6 +200,7 @@ export default function CreateAccountScreen({ navigation }: any) {
                       keyboardType="email-address"
                       autoCapitalize="none"
                       autoCorrect={false}
+                      placeholderTextColor="#999"
                     />
                     {email.length > 0 && (
                       <MaterialIcons
@@ -233,12 +227,13 @@ export default function CreateAccountScreen({ navigation }: any) {
                       style={styles.inputIcon}
                     />
                     <TextInput
-                      placeholder="Password (min. 8 characters)"
+                      placeholder="Password (8+ characters)"
                       style={styles.inputWithIcon}
                       secureTextEntry={!showPassword}
                       value={password}
                       onChangeText={setPassword}
                       autoCapitalize="none"
+                      placeholderTextColor="#999"
                     />
                     <TouchableOpacity
                       style={styles.passwordVisibilityToggle}
@@ -308,6 +303,7 @@ export default function CreateAccountScreen({ navigation }: any) {
                       value={confirmPassword}
                       onChangeText={setConfirmPassword}
                       autoCapitalize="none"
+                      placeholderTextColor="#999"
                     />
                     <TouchableOpacity
                       style={styles.passwordVisibilityToggle}

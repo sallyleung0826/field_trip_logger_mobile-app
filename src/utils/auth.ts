@@ -91,32 +91,9 @@ export async function checkBiometricSupport(): Promise<{
       };
     }
 
-    const supportedTypes =
-      await LocalAuthentication.supportedAuthenticationTypesAsync();
-
-    let biometricType = "Biometric";
-
-    if (
-      supportedTypes.includes(
-        LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION
-      )
-    ) {
-      biometricType = "Face ID";
-    } else if (
-      supportedTypes.includes(
-        LocalAuthentication.AuthenticationType.FINGERPRINT
-      )
-    ) {
-      biometricType = "Touch ID";
-    } else if (
-      supportedTypes.includes(LocalAuthentication.AuthenticationType.IRIS)
-    ) {
-      biometricType = "Iris";
-    }
-
     return {
       isAvailable: true,
-      biometricType: biometricType,
+      biometricType: "Biometric",
     };
   } catch (error) {
     console.error("[Auth] Error checking biometric support:", error);
@@ -139,7 +116,7 @@ export async function promptForBiometricSetup(
     }
 
     const testResult = await LocalAuthentication.authenticateAsync({
-      promptMessage: `Enable ${biometricSupport.biometricType} for quick login?`,
+      promptMessage: "Enable biometric authentication for quick login?",
       fallbackLabel: "Use Password",
       disableDeviceFallback: false,
       cancelLabel: "Not Now",
@@ -190,7 +167,7 @@ export async function biometricAuth(): Promise<{
     }
 
     const result = await LocalAuthentication.authenticateAsync({
-      promptMessage: `Login with ${biometricSupport.biometricType}`,
+      promptMessage: "Login with biometric authentication",
       fallbackLabel: "Use Password",
       disableDeviceFallback: false,
       cancelLabel: "Cancel",

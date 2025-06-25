@@ -68,8 +68,8 @@ export default function LoginScreen({ navigation }: any) {
 
       if (biometricAvailable && !biometricEnabled) {
         Alert.alert(
-          `Enable ${biometricType}?`,
-          `Would you like to use ${biometricType} for quick login next time?`,
+          "Enable Biometric Authentication?",
+          "Would you like to use biometric authentication for quick login next time?",
           [
             { text: "Not Now", style: "cancel" },
             {
@@ -82,7 +82,7 @@ export default function LoginScreen({ navigation }: any) {
                 if (setupSuccess) {
                   Alert.alert(
                     "Success!",
-                    `${biometricType} has been enabled for quick login.`
+                    "Biometric authentication has been enabled for quick login."
                   );
                   setBiometricEnabled(true);
                 }
@@ -301,40 +301,14 @@ export default function LoginScreen({ navigation }: any) {
                       activeOpacity={0.8}
                     >
                       <MaterialIcons
-                        name={
-                          biometricType === "Face ID" ? "face" : "fingerprint"
-                        }
+                        name="fingerprint"
                         size={24}
                         color="#007bff"
                       />
                       <Text style={styles.secondaryButtonText}>
-                        {isLoading
-                          ? "Authenticating..."
-                          : `Use ${biometricType}`}
+                        {isLoading ? "Authenticating..." : "Use Biometric"}
                       </Text>
                     </TouchableOpacity>
-                  )}
-
-                  {biometricAvailable && !biometricEnabled && (
-                    <View
-                      style={{
-                        marginTop: 10,
-                        padding: 10,
-                        backgroundColor: "rgba(255,255,255,0.1)",
-                        borderRadius: 8,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: "#fff",
-                          fontSize: 12,
-                          textAlign: "center",
-                        }}
-                      >
-                        💡 Login with your password to enable {biometricType}{" "}
-                        for quick access
-                      </Text>
-                    </View>
                   )}
                 </View>
 
